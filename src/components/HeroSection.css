@@ -1,0 +1,394 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 2rem 1rem;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(33, 150, 243, 0.1) 100%);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.hero-content {
+  max-width: 900px;
+  z-index: 3; /* Higher z-index to ensure content stays above images */
+  position: relative;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #1e88e5, #42a5f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
+  font-style: italic;
+}
+
+.hero-content p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  font-style: italic;
+  color: var(--text-color);
+}
+
+/* Enhanced CTA Button Styles */
+.cta-button {
+  font-style: italic;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem 2.8rem;
+  border-radius: 50px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #1e88e5, #42a5f5, #1976d2);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(30, 136, 229, 0.4);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  transform: translateY(0);
+  letter-spacing: 0.5px;
+}
+
+/* Hover effect - lift & enhanced glow */
+.cta-button:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(30, 136, 229, 0.6);
+  letter-spacing: 1px;
+}
+
+/* Active press effect */
+.cta-button:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
+}
+
+/* Continuous subtle pulse animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+.cta-button {
+  animation: pulse 3s infinite ease-in-out;
+}
+
+.cta-button:hover {
+  animation: none; /* Stop pulse on hover */
+}
+
+/* Shine animation */
+.cta-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: 0.7s;
+}
+
+.cta-button:hover::before {
+  left: 140%;
+}
+
+/* Floating particles effect */
+.cta-button::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  top: -20%;
+  left: 20%;
+  opacity: 0;
+  box-shadow: 
+    40px 40px 0 rgba(255, 255, 255, 0.7),
+    -40px -10px 0 rgba(255, 255, 255, 0.5),
+    20px -30px 0 rgba(255, 255, 255, 0.6);
+}
+
+.cta-button:hover::after {
+  animation: particles 1s ease-out;
+}
+
+@keyframes particles {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+  }
+ 100% {
+    opacity: 0;
+    transform: translateY(-40px) rotate(360deg);
+  }
+}
+
+/* Ripple effect */
+.cta-button .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Visual Section */
+.hero-visual {
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3; /* Higher z-index to ensure content stays above images */
+  position: relative;
+  width: 100%;
+}
+
+.doctor-icon {
+  font-size: 4rem;
+  margin-bottom: 2rem;
+}
+
+.data-flow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.flow-item {
+  color: white;
+  background-color: #0d1b2a;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  font-weight: 500;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.flow-arrow {
+  font-size: 1.5rem;
+  color: #1e88e5;
+}
+
+.medicine-icons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.medicine-icon {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  background-color: var(--card-bg);
+  padding: 0.5rem;
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+/* Side Images (Only for laptop & bigger) */
+.hero-image {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none; /* hidden by default */
+  z-index: 2; /* Lower than content but higher than background */
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.hero-image:hover {
+  opacity: 1;
+}
+
+.hero-image img {
+  max-width: 280px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+}
+
+.hero-image-left {
+  left: 2rem;
+}
+
+.hero-image-right {
+  right: 2rem;
+}
+
+/* Dark mode */
+.App.dark .hero {
+  background: black;
+  color: white;
+}
+
+.App.dark .hero-content h1 {
+  color: white;
+  text-shadow: 0 4px 12px rgba(255,255,255,0.3);
+}
+
+.App.dark .hero-content p {
+  color: #ccc;
+}
+
+.App.dark .flow-item {
+  background-color: #1a1a1a;
+  color: white;
+  box-shadow: 0 6px 16px rgba(255,255,255,0.1);
+}
+
+.App.dark .medicine-icon {
+  background-color: #1a1a1a;
+  box-shadow: 0 6px 16px rgba(255,255,255,0.1);
+}
+
+.App.dark .cta-button {
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+}
+
+.App.dark .hero-image img {
+  filter: drop-shadow(0 5px 15px rgba(255, 255, 255, 0.1)) 
+          brightness(0.9) 
+          contrast(1.1);
+}
+
+/* Show images only on laptop and larger devices (1024px and above) */
+@media (min-width: 1024px) {
+  .hero {
+    padding: 2rem 3rem;
+  }
+  
+  .hero-image {
+    display: block;
+  }
+  
+  .hero-content {
+    max-width: 700px; /* Slightly reduce width to accommodate side images */
+    padding: 0 2rem;
+  }
+  
+  .hero-visual {
+    max-width: 80%;
+  }
+}
+
+/* For very large screens */
+@media (min-width: 1440px) {
+  .hero-image img {
+    max-width: 350px;
+  }
+  
+  .hero-content {
+    max-width: 800px;
+  }
+}
+
+/* Hide images on tablets & mobiles */
+@media (max-width: 1023px) {
+  .hero-image {
+    display: none !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 0.5rem;
+  }
+  
+  .hero-content h1 {
+    font-size: 2.2rem;
+  }
+  
+  .hero-content p {
+    font-size: 1.2rem;
+    padding: 0 1rem;
+  }
+  
+  .data-flow {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .cta-button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .flow-item {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .medicine-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .hero-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .hero-content p {
+    font-size: 1rem;
+  }
+  
+  .cta-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .flow-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .flow-arrow {
+    font-size: 1.2rem;
+  }
+  
+  .medicine-icon {
+    width: 35px;
+    height: 35px;
+  }
+}

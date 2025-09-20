@@ -1,0 +1,271 @@
+.doctor-dashboard {
+  padding: 2rem 0;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.doctor-info h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  color:#42a5f5
+}
+
+.doctor-info p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 2.2rem;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: rotate(8deg) scale(1.1);
+}
+
+.stat-content h3 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #42a5f5;
+}
+
+.stat-content p {
+  margin: 0.25rem 0 0 0;
+  color: var(--text-muted);
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.recent-patients,
+.doctor-details {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recent-patients h3,
+.doctor-details h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  color: #42a5f5;
+}
+
+.patients-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.patient-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--bg-color);
+  border-radius: 10px;
+  border-left: 4px solid #42a5f5;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.patient-item:hover {
+  transform: translateX(6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.patient-info h4 {
+  margin: 0 0 0.25rem 0;
+  color: var(--primary-color);
+}
+
+.patient-info p,
+.patient-contact p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.no-patients {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+}
+
+.details-card {
+  background: var(--bg-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: background 0.3s ease;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-row label {
+  font-weight: 600;
+  min-width: 120px;
+  margin-right: 1rem;
+  color: #42a5f5;
+}
+
+.edit-profile-btn {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.edit-profile-btn a {
+  padding: 0.6rem 1.5rem;
+  background: #42a5f5;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.edit-profile-btn a:hover {
+  background: var(--secondary-color);
+}
+
+.not-signed-in {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.not-signed-in h2 {
+  margin-bottom: 1.5rem;
+}
+
+/* User menu in header */
+.user-menu {
+  display: flex;
+  align-items: center;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .patient-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .doctor-info h2 {
+    font-size: 1.6rem;
+  }
+}
+.cta-button{
+  margin-top: 20px;
+}
+/* Dark mode adjustments */
+.App.dark {
+  background: #000;
+  color: #fff;
+}
+
+.App.dark .stat-card,
+.App.dark .recent-patients,
+.App.dark .doctor-details,
+.App.dark .details-card {
+  background: #111;
+  box-shadow: 0 6px 14px rgba(255, 255, 255, 0.08);
+}
+
+.App.dark .patient-item {
+  background: #181818;
+  border-left: 4px solid var(--secondary-color);
+}
+
+.App.dark .doctor-info h2,
+.App.dark .recent-patients h3,
+.App.dark .doctor-details h3,
+.App.dark .detail-row label {
+  color: var(--secondary-color);
+}
+
+.App.dark .stat-content p,
+.App.dark .patient-info p,
+.App.dark .patient-contact p,
+.App.dark .no-patients {
+  color: #ccc;
+}
+.no-patients {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+}
+
+.no-patients-gif {
+  width: 200px;
+  max-width: 100%;
+  margin-bottom: 1.5rem;
+}
+.dashboard-actions .cta-button{
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+}

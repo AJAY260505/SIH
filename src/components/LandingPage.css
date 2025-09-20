@@ -1,0 +1,52 @@
+.landing-page {
+  width: 100%;
+  overflow: hidden;
+}
+
+.intro-section {
+  padding: 5rem 0;
+  text-align: center;
+  background-color: var(--card-bg);
+  position: relative;
+}
+
+.intro-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent,#1e88e5, transparent);
+}
+
+.intro-text {
+  font-size: 1.25rem;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+  color: var(--text-color);
+  position: relative;
+  z-index: 1;
+}
+
+/* Dark mode adjustments */
+.dark .intro-section {
+  background-color: var(--card-bg-dark);
+}
+
+.dark .intro-text {
+  color: var(--text-color-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .intro-section {
+    padding: 3rem 0;
+  }
+  
+  .intro-text {
+    font-size: 1.1rem;
+    padding: 0 1rem;
+  }
+}
