@@ -33,7 +33,7 @@ const HeroSection = () => {
     <section className="hero" ref={ref}>
       <div className="hero-image hero-image-left">
         <motion.img
-          src="/img1.png"
+          src="/img6.png"
           alt="Left Illustration"
           initial={{ opacity: 0, x: -50 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}

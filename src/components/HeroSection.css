@@ -15,7 +15,7 @@
 
 .hero-content {
   max-width: 900px;
-  z-index: 3; /* Higher z-index to ensure content stays above images */
+  z-index: 3;
   position: relative;
   margin: 0 auto;
   padding: 0 1rem;
@@ -41,7 +41,6 @@
   color: var(--text-color);
 }
 
-/* Enhanced CTA Button Styles */
 .cta-button {
   font-style: italic;
   display: inline-flex;
@@ -62,37 +61,27 @@
   transition: all 0.4s ease;
   transform: translateY(0);
   letter-spacing: 0.5px;
+  animation: pulse 3s infinite ease-in-out;
 }
 
-/* Hover effect - lift & enhanced glow */
 .cta-button:hover {
   transform: translateY(-4px) scale(1.05);
   box-shadow: 0 12px 30px rgba(30, 136, 229, 0.6);
   letter-spacing: 1px;
+  animation: none;
 }
 
-/* Active press effect */
 .cta-button:active {
   transform: scale(0.97);
   box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
 }
 
-/* Continuous subtle pulse animation */
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.03); }
   100% { transform: scale(1); }
 }
 
-.cta-button {
-  animation: pulse 3s infinite ease-in-out;
-}
-
-.cta-button:hover {
-  animation: none; /* Stop pulse on hover */
-}
-
-/* Shine animation */
 .cta-button::before {
   content: "";
   position: absolute;
@@ -100,12 +89,7 @@
   left: -100%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
   transform: skewX(-25deg);
   transition: 0.7s;
 }
@@ -114,42 +98,6 @@
   left: 140%;
 }
 
-/* Floating particles effect */
-.cta-button::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  top: -20%;
-  left: 20%;
-  opacity: 0;
-  box-shadow: 
-    40px 40px 0 rgba(255, 255, 255, 0.7),
-    -40px -10px 0 rgba(255, 255, 255, 0.5),
-    20px -30px 0 rgba(255, 255, 255, 0.6);
-}
-
-.cta-button:hover::after {
-  animation: particles 1s ease-out;
-}
-
-@keyframes particles {
-  0% {
-    opacity: 0;
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    opacity: 1;
-  }
- 100% {
-    opacity: 0;
-    transform: translateY(-40px) rotate(360deg);
-  }
-}
-
-/* Ripple effect */
 .cta-button .ripple {
   position: absolute;
   border-radius: 50%;
@@ -165,13 +113,12 @@
   }
 }
 
-/* Visual Section */
 .hero-visual {
   margin-top: 3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 3; /* Higher z-index to ensure content stays above images */
+  z-index: 3;
   position: relative;
   width: 100%;
 }
@@ -223,34 +170,38 @@
   transition: var(--transition);
 }
 
-/* Side Images (Only for laptop & bigger) */
+/* Side Images */
 .hero-image {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  display: none; /* hidden by default */
-  z-index: 2; /* Lower than content but higher than background */
+  display: none;
+  z-index: 2;
   opacity: 0.8;
-  transition: opacity 0.3s ease;
-}
-
-.hero-image:hover {
-  opacity: 1;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .hero-image img {
-  max-width: 280px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease, max-width 0.3s ease;
 }
 
+/* Left Image */
 .hero-image-left {
-  left: 2rem;
+  left: 0.5rem;
+  top: 10px;
+}
+.hero-image-left img {
+  max-width: 500px;
 }
 
+/* Right Image */
 .hero-image-right {
-  right: 2rem;
+  right: 1rem;
+  top: 90px;
+}
+.hero-image-right img {
+  max-width: 390px; /* updated to 390px */
 }
 
 /* Dark mode */
@@ -284,12 +235,10 @@
 }
 
 .App.dark .hero-image img {
-  filter: drop-shadow(0 5px 15px rgba(255, 255, 255, 0.1)) 
-          brightness(0.9) 
-          contrast(1.1);
+  filter: drop-shadow(0 5px 15px rgba(255, 255, 255, 0.1)) brightness(0.9) contrast(1.1);
 }
 
-/* Show images only on laptop and larger devices (1024px and above) */
+/* Show images only on laptop & above */
 @media (min-width: 1024px) {
   .hero {
     padding: 2rem 3rem;
@@ -300,7 +249,7 @@
   }
   
   .hero-content {
-    max-width: 700px; /* Slightly reduce width to accommodate side images */
+    max-width: 700px;
     padding: 0 2rem;
   }
   
@@ -309,10 +258,13 @@
   }
 }
 
-/* For very large screens */
+/* Very large screens */
 @media (min-width: 1440px) {
-  .hero-image img {
-    max-width: 350px;
+  .hero-image-left img {
+    max-width: 550px;
+  }
+  .hero-image-right img {
+    max-width: 390px; /* keep right image 390px */
   }
   
   .hero-content {
@@ -320,14 +272,13 @@
   }
 }
 
-/* Hide images on tablets & mobiles */
+/* Tablets & mobiles */
 @media (max-width: 1023px) {
   .hero-image {
     display: none !important;
   }
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .hero {
     padding: 2rem 0.5rem;
@@ -363,7 +314,6 @@
   }
 }
 
-/* Extra small devices */
 @media (max-width: 480px) {
   .hero-content h1 {
     font-size: 1.8rem;

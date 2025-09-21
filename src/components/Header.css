@@ -1,3 +1,4 @@
+/* Header */
 .header {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
@@ -14,42 +15,56 @@
   box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6);
 }
 
+/* Container: left logo, right nav */
 .header .container {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Logo left, nav right */
   align-items: center;
-  padding: 0.9rem 2rem;
+  padding: 1rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 /* Logo */
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-style: italic;
-  font-size: 1.9rem;
-  font-weight: 800;
   color: #1e88e5;
   text-decoration: none;
   transition: color 0.3s ease, transform 0.2s ease;
-  letter-spacing: 1px;
+}
+
+.logo img {
+  height: 48px;
+  width: 48px;
+  object-fit: contain;
 }
 
 .logo:hover {
-  color: var(--secondary-color);
+  color: #42a5f5;
   transform: scale(1.05);
 }
 
 /* Navigation */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
 .nav ul {
-  font-style: italic;
   display: flex;
   list-style: none;
-  gap: 1.8rem;
-  align-items: center;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  font-style: italic;
 }
 
 .nav a {
-  color: var(--text-color);
+  color: var(--text-color, #333);
   text-decoration: none;
   font-weight: 500;
   position: relative;
@@ -63,7 +78,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(135deg, #1e88e5, #82c0f3); /* Gradient underline */
+  background: linear-gradient(135deg, #1e88e5, #82c0f3);
   transition: width 0.3s ease;
   border-radius: 2px;
 }
@@ -76,22 +91,27 @@
   width: 100%;
 }
 
-/* Auth & Theme Buttons */
+/* Buttons */
 .auth-btn,
-.theme-toggle {
+.theme-toggle,
+.user-name-btn {
   border: none;
-  padding: 0.55rem 1.2rem;
-  border-radius: 25px;
   cursor: pointer;
+  border-radius: 25px;
   font-weight: 600;
-  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
+/* Auth Button */
 .auth-btn {
   background: linear-gradient(135deg, #1e88e5, #42a5f5);
   color: #fff;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.95rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
 .auth-btn:hover {
@@ -99,14 +119,12 @@
   box-shadow: 0 6px 18px rgba(30, 136, 229, 0.45);
 }
 
+/* Theme Toggle */
 .theme-toggle {
   background: #e3f2fd;
   color: #1e88e5;
   padding: 0.5rem 0.7rem;
   font-size: 1.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .theme-toggle:hover {
@@ -115,31 +133,24 @@
   transform: rotate(20deg) scale(1.1);
 }
 
-/* User Profile */
-/* User Profile as Name Button */
+/* User Menu */
 .user-menu {
   display: flex;
   align-items: center;
-  
+  gap: 0.5rem;
 }
 
 .user-name-btn {
   background: linear-gradient(135deg, #1e88e5, #42a5f5);
-  color: #fff!important;
+  color: #fff !important;
   padding: 0.5rem 1.2rem;
-  border-radius: 25px;
-  font-weight: 600;
   font-size: 0.95rem;
-  cursor: pointer;
+  font-weight: 600;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
-  text-align: center;
-  display: inline-block;
   text-decoration: none;
-  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
 }
 
-/* REMOVE bottom underline for user-name-btn */
 .user-name-btn::after {
   content: none !important;
 }
@@ -147,16 +158,10 @@
 .user-name-btn:hover {
   transform: translateY(-2px) scale(1.05);
   box-shadow: 0 6px 18px rgba(30, 136, 229, 0.45);
-  color: white !important;
-  border: none;
+  color: #fff !important;
 }
 
-.user-profile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* User Avatar */
 .user-avatar {
   width: 42px;
   height: 42px;
@@ -168,7 +173,7 @@
 
 .user-avatar:hover {
   transform: scale(1.1) rotate(5deg);
-  border-color: var(--secondary-color);
+  border-color: #42a5f5;
 }
 
 /* Responsive */
@@ -185,76 +190,3 @@
     gap: 1rem;
   }
 }
-/* ...keep all your previous CSS... */
-
-/* User Menu */
-.user-menu {
-  display: flex;
-  align-items: center;
-}
-
-/* Profile Image */
-.user-profile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.user-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 2px solid #1e88e5;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
-.user-avatar:hover {
-  transform: scale(1.1) rotate(5deg);
-  border-color: var(--secondary-color);
-  -webkit-transform: scale(1.1) rotate(5deg);
-  -moz-transform: scale(1.1) rotate(5deg);
-  -ms-transform: scale(1.1) rotate(5deg);
-  -o-transform: scale(1.1) rotate(5deg);
-}
-
-/* User Name as Button */
-.user-name-container {
-  display: flex;
-  border: none;
-  align-items: center;
-}
-
-/* User Profile as Name Button */
-.user-menu {
-  display: flex;
-  align-items: center;
-}
-
-.user-name-btn {
-  background: linear-gradient(135deg, #1e88e5, #42a5f5);
-  color: #fff !important;
-  padding: 0.5rem 1.2rem;
-  border-radius: 25px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
-  text-align: center;
-  display: inline-block;
-  text-decoration: none; /* remove underline */
-  position: relative;
-}
-
-.user-name-btn::after {
-  content: none !important; /* remove default underline effect */
-}
-
-.user-name-btn:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 18px rgba(30, 136, 229, 0.45);
-  color: #fff !important;
-}
-
- 

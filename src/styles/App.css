@@ -55,12 +55,7 @@ body {
   transition: var(--transition);
 }
 
-.container {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
+
 
 /* Animation for cards */
 @keyframes fadeInUp {
@@ -106,7 +101,12 @@ body {
 .pulse {
   animation: pulse 2s infinite;
 }
+.container {
+  width: 90%;
 
+  margin: 0 auto;
+  padding: 20px 0;
+}
 /* Loading spinner */
 .loading-spinner {
   width: 20px;
@@ -126,6 +126,6 @@ body {
 @media (max-width: 768px) {
   .container {
     width: 95%;
-    padding: 0 15px;
+    padding: 10 15px;
   }
 }

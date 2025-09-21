@@ -32,7 +32,7 @@
 
 /* Dark mode adjustments */
 .dark .intro-section {
-  background-color: var(--card-bg-dark);
+  background-color: #0a0a0a;
 }
 
 .dark .intro-text {

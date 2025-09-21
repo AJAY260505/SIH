@@ -3,6 +3,7 @@
   background: var(--card-bg);
   position: relative;
   overflow: hidden;
+  background-color:  linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(33, 150, 243, 0.1) 100%);
 }
 
 .features::before {

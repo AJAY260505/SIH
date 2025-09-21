@@ -5,85 +5,103 @@ import './Header.css';
 
 const Header = ({ theme, toggleTheme, user, handleSignIn, handleSignOut }) => {
   return (
-    <motion.header 
-      className={`header ${theme}`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 120 }}
+  <header className={`header ${theme}`}>
+  <div
+    className="header-container"
+    style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+      padding: '1rem 2rem',
+      margin: 0 // override the auto centering
+    }}
+  >
+    {/* Left: Logo + Name */}
+    <Link
+      to="/"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        fontStyle: 'italic',
+        fontSize: '1.9rem',
+        fontWeight: '800',
+        color: '#1e88e5',
+        textDecoration: 'none',
+      }}
     >
-      <div className="container">
-        <Link to="/" className="logo">
-          AYUSH BANDHAN
-        </Link>
+      <img
+        src="/logo.png"
+        alt="Logo"
+        style={{
+          height: '48px',
+          width: '48px',
+          objectFit: 'contain'
+        }}
+      />
+      <span>AYUSH BANDHAN</span>
+    </Link>
 
-        <nav className="nav">
-          <ul>
+    {/* Right: Navigation & Buttons */}
+    <nav className="nav">
+      <ul style={{ display: 'flex', gap: '2rem', alignItems: 'center', margin: 0, padding: 0 }}>
+        <li><Link to="/search">Search</Link></li>
+        <li>
+          <a href="https://ayush-documentation.vercel.app/" target="_blank" rel="noopener noreferrer">
+            Documentation
+          </a>
+        </li>
+        {user ? (
+          <>
+            <li><Link to="/add-patient">Add Patient</Link></li>
+            <li><Link to="/doctor-dashboard">Doctor Dashboard</Link></li>
             <li>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/search">Search</Link>
-              </motion.div>
+              <Link to="/profile" style={{
+                background: 'linear-gradient(135deg, #1e88e5, #42a5f5)',
+                color: '#fff',
+                padding: '0.5rem 1.2rem',
+                borderRadius: '25px',
+                fontWeight: 600,
+                textDecoration: 'none'
+              }}>
+                {user.displayName || 'User'}
+              </Link>
             </li>
-            <li>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <a href="https://ayush-documentation.vercel.app/" target="_blank" rel="noopener noreferrer">
-                  Documentation
-                </a>
-              </motion.div>
-            </li>
+          </>
+        ) : (
+          <li>
+            <button style={{
+              background: 'linear-gradient(135deg, #1e88e5, #42a5f5)',
+              color: '#fff',
+              padding: '0.55rem 1.2rem',
+              borderRadius: '25px',
+              border: 'none',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }} onClick={handleSignIn}>
+              Sign In
+            </button>
+          </li>
+        )}
+        <li>
+          <button style={{
+            background: '#e3f2fd',
+            color: '#1e88e5',
+            borderRadius: '25px',
+            border: 'none',
+            padding: '0.5rem 0.7rem',
+            fontSize: '1.3rem',
+            cursor: 'pointer'
+          }} onClick={toggleTheme}>
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
-            {user && (
-              <>
-                <li>
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Link to="/add-patient">Add Patient</Link>
-                  </motion.div>
-                </li>
-                <li>
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Link to="/doctor-dashboard">Doctor Dashboard</Link>
-                  </motion.div>
-                </li>
-              </>
-            )}
-
-            {user ? (
-              <li className="user-menu">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link to="/profile" className="user-name-btn">
-                    {user.displayName || "User"}
-                  </Link>
-                </motion.div>
-              </li>
-            ) : (
-              <li>
-                <motion.button 
-                  onClick={handleSignIn} 
-                  className="auth-btn"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Sign In
-                </motion.button>
-              </li>
-            )}
-
-            <li>
-              <motion.button 
-                onClick={toggleTheme} 
-                className="theme-toggle"
-                whileHover={{ scale: 1.1, rotate: 180 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                {theme === 'light' ? '🌙' : '☀️'}
-              </motion.button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </motion.header>
   );
 };
 

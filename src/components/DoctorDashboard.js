@@ -80,11 +80,7 @@ const DoctorDashboard = () => {
             <h2>Doctor Dashboard</h2>
             <p>Welcome back, {doctorData?.name || 'Doctor'}</p>
           </div>
-          <div className="dashboard-actions">
-            <Link to="/add-patient" className="cta-button">
-              Add New Patient
-            </Link>
-          </div>
+       
         </motion.div>
 
         {/* Stats */}
@@ -140,7 +136,7 @@ const DoctorDashboard = () => {
               </div>
             ) : (
               <div className="no-patients">
-                <img src="/not.gif" alt="Doctor illustration" className="no-patients-gif" />
+                
                 <p>No patients registered yet.</p>
                 <Link to="/add-patient" className="cta-button reg_another">
                   Register Your First Patient

@@ -25,12 +25,11 @@ const SearchPage = () => {
   const [results, setResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
-  const [hasSearched, setHasSearched] = useState(false); // NEW: tracks whether an initial search was done
+  const [hasSearched, setHasSearched] = useState(false);
   const navigate = useNavigate();
 
   const API_BASE_URL = "http://localhost:8000";
 
-  // NEW: reusable search routine (used by button submit and auto-trigger)
   const performSearch = async ({ term = searchTerm, system = selectedSystem, confidence = minConfidence } = {}) => {
     if (!term || !term.trim()) return;
 
@@ -47,7 +46,6 @@ const SearchPage = () => {
         setResults({ results: [], fuzzy_matches_without_mappings: [] });
       }
 
-      // Mark that we've done at least one search so auto-updates can run afterwards
       setHasSearched(true);
     } catch (error) {
       console.error("Search error:", error);
@@ -59,37 +57,71 @@ const SearchPage = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    // call the shared performSearch
     await performSearch({ term: searchTerm, system: selectedSystem, confidence: minConfidence });
   };
 
-  // AUTO-SEARCH: when selectedSystem or minConfidence changes after an initial search,
-  // automatically re-run the most recent search (debounced to avoid rapid calls while sliding).
   useEffect(() => {
-    if (!hasSearched) return; // don't auto-run before first search
-    if (!searchTerm || !searchTerm.trim()) return; // nothing to search
+    if (!hasSearched) return;
+    if (!searchTerm || !searchTerm.trim()) return;
 
-    // debounce (300ms)
     const debounceMs = 300;
     const timer = setTimeout(() => {
-      // perform search with the new system/confidence but same searchTerm
       performSearch({ term: searchTerm, system: selectedSystem, confidence: minConfidence });
     }, debounceMs);
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSystem, minConfidence]); // run when system or confidence changes
+  }, [selectedSystem, minConfidence]);
 
-  // Handle row click to navigate to details page
-  const handleRowClick = (mapping) => {
-    navigate('/mapping-details', { state: { mapping, searchParams: {
-      system: selectedSystem,
-      query: searchTerm,
-      min_confidence: minConfidence
-    } } });
+  const handleViewDetails = async (mapping) => {
+    setIsSearching(true);
+    const termToSearch = mapping.source_term.english_name || searchTerm;
+    
+    try {
+      // Fetch data from all endpoints
+      const [ayurvedaData, unaniData, siddhaData, icd11Data] = await Promise.all([
+        fetchData(`${API_BASE_URL}/terminologies/ayurveda/search/?q=${encodeURIComponent(termToSearch)}`),
+        fetchData(`${API_BASE_URL}/terminologies/unani/search/?q=${encodeURIComponent(termToSearch)}`),
+        fetchData(`${API_BASE_URL}/terminologies/siddha/search/?q=${encodeURIComponent(termToSearch)}`),
+        fetchData(`${API_BASE_URL}/terminologies/icd11/search/?q=${encodeURIComponent(termToSearch)}&fuzzy=true&threshold=0.3`)
+      ]);
+
+      navigate('/mapping-details', { 
+        state: { 
+          mapping, 
+          searchParams: {
+            system: selectedSystem,
+            query: searchTerm,
+            min_confidence: minConfidence
+          },
+          additionalData: {
+            ayurveda: ayurvedaData,
+            unani: unaniData,
+            siddha: siddhaData,
+            icd11: icd11Data
+          },
+          searchTerm: termToSearch
+        } 
+      });
+    } catch (error) {
+      console.error("Error fetching additional data:", error);
+      // Navigate anyway with just the mapping data
+      navigate('/mapping-details', { 
+        state: { 
+          mapping, 
+          searchParams: {
+            system: selectedSystem,
+            query: searchTerm,
+            min_confidence: minConfidence
+          },
+          searchTerm: termToSearch
+        } 
+      });
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  // Filter results based on active filter
   const filteredResults = results && results.results ? 
     results.results.filter(item => {
       if (activeFilter === 'all') return true;
@@ -171,7 +203,7 @@ const SearchPage = () => {
               </div>
             </div>
 
-            <div className="filter-group">
+            {/* <div className="filter-group">
               <label>Confidence Level</label>
               <div className="slider-container">
                 <input
@@ -185,7 +217,7 @@ const SearchPage = () => {
                 />
                 <span className="slider-value">{(minConfidence * 100).toFixed(0)}%</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </motion.form>
 
@@ -250,6 +282,7 @@ const SearchPage = () => {
                           <th>Unani</th>
                           <th>ICD-11</th>
                           <th>Confidence</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -259,8 +292,7 @@ const SearchPage = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: index * 0.05 }}
-                            className="mapping-row clickable-row"
-                            onClick={() => handleRowClick(mapping)}
+                            className="mapping-row"
                           >
                             <td>
                               <div className="source-term">
@@ -319,6 +351,14 @@ const SearchPage = () => {
                                 </div>
                               </div>
                             </td>
+                            <td>
+                              <button 
+                                className="view-button"
+                                onClick={() => handleViewDetails(mapping)}
+                              >
+                                View Details
+                              </button>
+                            </td>
                           </motion.tr>
                         ))}
                       </tbody>
@@ -352,8 +392,7 @@ const SearchPage = () => {
                         <tr>
                           <th>Code</th>
                           <th>Term Name</th>
-                          <th>Similarity Score</th>
-                          <th>Status</th>
+                          {/* <th>Similarity Score</th> */}
                         </tr>
                       </thead>
                       <tbody>
@@ -367,7 +406,7 @@ const SearchPage = () => {
                           >
                             <td>{item.code}</td>
                             <td>{item.english_name}</td>
-                            <td>
+                            {/* <td>
                               <div className="similarity-score">
                                 <div className="score-value">{(item.similarity * 100).toFixed(1)}%</div>
                                 <div className="score-bar">
@@ -377,10 +416,7 @@ const SearchPage = () => {
                                   ></div>
                                 </div>
                               </div>
-                            </td>
-                            <td>
-                              <span className="status-badge">{item.message}</span>
-                            </td>
+                            </td> */}
                           </motion.tr>
                         ))}
                       </tbody>
@@ -404,48 +440,47 @@ const SearchPage = () => {
           viewport={{ once: true }}
         >
           <h3>Explore by Medical System</h3>
-<div className="cards-container">
-  <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-    <Link to="/ayurveda" className="system-card">
-      <div className="system-icon">
-        <img src="https://images.rawpixel.com/image_png_social_landscape/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTAxL3Jhd3BpeGVsX29mZmljZV81MV8zZF9yZW5kZXJfb2ZfYXl1cnZlZGFfaXNvbGF0ZWRfb25fd2hpdGVfYmFja19hMzY3ZWI5Ny01NTdmLTQ4ODYtYjg5My1hNGExY2VhZTgzMjAucG5n.png" alt="Ayurveda" />
-      </div>
-      <h4>Ayurveda</h4>
-      <p>Ancient Indian system of natural healing</p>
-    </Link>
-  </motion.div>
+          <div className="cards-container">
+            <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link to="/ayurveda" className="system-card">
+                <div className="system-icon">
+                  <img src="https://images.rawpixel.com/image_png_social_landscape/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTAxL3Jhd3BpeGVsX29mZmljZV81MV8zZF9yZW5kZXJfb2ZfYXl1cnZlZGFfaXNvbGF0ZWRfb25fd2hpdGVfYmFja19hMzY3ZWI5Ny01NTdmLTQ4ODYtYjg5My1hNGExY2VhZTgzMjAucG5n.png" alt="Ayurveda" />
+                </div>
+                <h4>Ayurveda</h4>
+                <p>Ancient Indian system of natural healing</p>
+              </Link>
+            </motion.div>
 
-  <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-    <Link to="/siddha" className="system-card">
-      <div className="system-icon">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhUYfEgw1CyfuRMPlcJh6TKJ5z8ULabwA_hUJ2g-0kmFYCrXP_dCagy5L8VGDt5vvjIJA&usqp=CAU" alt="Siddha" />
-      </div>
-      <h4>Siddha</h4>
-      <p>Traditional Tamil system of medicine</p>
-    </Link>
-  </motion.div>
+            <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link to="/siddha" className="system-card">
+                <div className="system-icon">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhUYfEgw1CyfuRMPlcJh6TKJ5z8ULabwA_hUJ2g-0kmFYCrXP_dCagy5L8VGDt5vvjIJA&usqp=CAU" alt="Siddha" />
+                </div>
+                <h4>Siddha</h4>
+                <p>Traditional Tamil system of medicine</p>
+              </Link>
+            </motion.div>
 
-  <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-    <Link to="/unani" className="system-card">
-      <div className="system-icon">
-        <img src="https://naattumarundhukadai.com/cdn/shop/collections/Unani.jpg?v=1531830805" alt="Unani" />
-      </div>
-      <h4>Unani</h4>
-      <p>Greco-Arabic system of medicine</p>
-    </Link>
-  </motion.div>
+            <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link to="/unani" className="system-card">
+                <div className="system-icon">
+                  <img src="https://naattumarundhukadai.com/cdn/shop/collections/Unani.jpg?v=1531830805" alt="Unani" />
+                </div>
+                <h4>Unani</h4>
+                <p>Greco-Arabic system of medicine</p>
+              </Link>
+            </motion.div>
 
-  <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-    <Link to="/icd11" className="system-card">
-      <div className="system-icon">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjgf4XbSrEBV3uWXQncHYC_hqLvAiY9SPK8A&s" alt="ICD-11" />
-      </div>
-      <h4>ICD-11</h4>
-      <p>International Classification of Diseases</p>
-    </Link>
-  </motion.div>
-</div>
-
+            <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link to="/icd11" className="system-card">
+                <div className="system-icon">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjgf4XbSrEBV3uWXQncHYC_hqLvAiY9SPK8A&s" alt="ICD-11" />
+                </div>
+                <h4>ICD-11</h4>
+                <p>International Classification of Diseases</p>
+              </Link>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </div>
