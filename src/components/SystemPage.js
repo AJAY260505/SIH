@@ -85,6 +85,7 @@ const SystemPage = ({ systemName }) => {
     }
   };
 
+  // Navigate with the same data (for both row + card)
   const handleRowClick = (item) => {
     navigate('/mapping-details', {
       state: {
@@ -95,6 +96,7 @@ const SystemPage = ({ systemName }) => {
     });
   };
 
+  // Dynamically extract keys from first result for table columns
   const getTableHeaders = (items) => {
     if (!items || items.length === 0) return [];
     return Object.keys(items[0]);
@@ -103,39 +105,82 @@ const SystemPage = ({ systemName }) => {
   return (
     <div className="system-page">
       <div className="container">
-        <motion.div className="system-header">
-          <div className="system-icon-large">
+        <motion.div 
+          className="system-header"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.div 
+            className="system-icon-large"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: 0 }}
+          >
             <img 
               src={system.image} 
               alt={system.title} 
               style={{ width: '120px', height: '120px', objectFit: 'contain', borderRadius: "80px" }}
             />
-          </div>
+          </motion.div>
           <div className="system-info">
             <h2>{system.title}</h2>
             <p>{system.description}</p>
           </div>
         </motion.div>
 
-        {/* Search Form */}
-        <form onSubmit={handleSearch} className="search-forms">
+        <motion.form 
+          onSubmit={handleSearch} 
+          className="search-forms"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           <input
             type="text"
-            placeholder={`Search ${system.title} treatments`}
+            placeholder={`Search ${system.title} treatments (e.g., fever, diabetes)`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-inputs"
           />
-          <button type="submit" className="search-buttons" disabled={isSearching}>
-            {isSearching ? <div className="loading-spinner"></div> : "Search"}
-          </button>
-        </form>
+          <motion.button 
+            type="submit" 
+            className="search-buttons"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            disabled={isSearching}
+          >
+            {isSearching ? (
+              <div className="loading-spinner"></div>
+            ) : (
+              "Search"
+            )}
+          </motion.button>
+        </motion.form>
 
-        {/* Results */}
+        <AnimatePresence>
+          {results && results.length === 0 && (
+            <motion.div 
+              className="no-results"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <p>No {system.title} results found for "{searchTerm}". Try searching for "fever" or "diabetes".</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence>
           {results && results.length > 0 && (
-            <div className="system-results">
+            <motion.div 
+              className="system-results"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
               <h3>{system.title} Treatments for "{searchTerm}"</h3>
+
+              {/* FULL Data Table */}
               <div className="mapping-table-container">
                 <table className="mapping-table">
                   <thead>
@@ -147,9 +192,12 @@ const SystemPage = ({ systemName }) => {
                   </thead>
                   <tbody>
                     {results.map((item, idx) => (
-                      <tr
-                        key={idx}
+                      <motion.tr
+                        key={item.code || item.id || idx}
                         className="mapping-row clickable-row"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: idx * 0.03 }}
                         onClick={() => handleRowClick(item)}
                       >
                         {getTableHeaders(results).map((key) => (
@@ -159,23 +207,75 @@ const SystemPage = ({ systemName }) => {
                               : item[key] ?? '-'}
                           </td>
                         ))}
-                      </tr>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>
               </div>
 
-              {/* Card Grid */}
-              <div className="results-grid">
+              {/* Card View (clicks behave same as row) */}
+              <motion.div 
+                className="results-grid"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { 
+                    opacity: 1,
+                    transition: { staggerChildren: 0.05 }
+                  }
+                }}
+                initial="hidden"
+                animate="visible"
+                style={{ marginTop: 20 }}
+              >
                 {results.map((item, index) => (
                   <div key={index} onClick={() => handleRowClick(item)} style={{ cursor: "pointer" }}>
-                    <SystemCard item={item} system={system.title} />
+                    <SystemCard 
+                      item={item} 
+                      system={system.title}
+                    />
                   </div>
                 ))}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
+
+        <motion.div 
+          className="system-info-content"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <h3>About {system.title}</h3>
+          <p>
+            {system.title} is a {system.title === 'ICD-11' ? 'modern international standard' : 'traditional system of medicine'} with {
+              system.title === 'ICD-11' 
+                ? 'global recognition for disease classification and health reporting.' 
+                : 'historical roots in the Indian subcontinent. The system integrates natural elements and holistic approaches to prevent and treat health conditions.'
+            }
+          </p>
+          <div className="system-benefits">
+            <h4>Key Benefits</h4>
+            <ul>
+              {system.title === 'ICD-11' ? (
+                <>
+                  <li>Global standard for health reporting</li>
+                  <li>Comprehensive disease classification</li>
+                  <li>Digital-ready structure</li>
+                  <li>Integration with traditional medicine systems</li>
+                </>
+              ) : (
+                <>
+                  <li>Holistic approach to wellness</li>
+                  <li>Natural and minimal side effects</li>
+                  <li>Personalized treatments based on individual constitution</li>
+                  <li>Focus on prevention and health maintenance</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
