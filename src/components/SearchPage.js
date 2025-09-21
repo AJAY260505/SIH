@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import './SearchPage.css';
@@ -25,28 +25,30 @@ const SearchPage = () => {
   const [results, setResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [hasSearched, setHasSearched] = useState(false); // NEW: tracks whether an initial search was done
   const navigate = useNavigate();
 
   const API_BASE_URL = "http://localhost:8000";
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchTerm.trim()) return;
-    
+  // NEW: reusable search routine (used by button submit and auto-trigger)
+  const performSearch = async ({ term = searchTerm, system = selectedSystem, confidence = minConfidence } = {}) => {
+    if (!term || !term.trim()) return;
+
     setIsSearching(true);
-    
     try {
-      // Call the mappings endpoint
       const data = await fetchData(
-        `${API_BASE_URL}/terminologies/mappings/?system=${selectedSystem}&q=${searchTerm}&min_confidence=${minConfidence}`
+        `${API_BASE_URL}/terminologies/mappings/?system=${system}&q=${encodeURIComponent(term)}&min_confidence=${confidence}`
       );
-      
+
       if (data) {
         setResults(data);
         console.log("API Response:", data);
       } else {
         setResults({ results: [], fuzzy_matches_without_mappings: [] });
       }
+
+      // Mark that we've done at least one search so auto-updates can run afterwards
+      setHasSearched(true);
     } catch (error) {
       console.error("Search error:", error);
       setResults({ results: [], fuzzy_matches_without_mappings: [] });
@@ -54,6 +56,29 @@ const SearchPage = () => {
       setIsSearching(false);
     }
   };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    // call the shared performSearch
+    await performSearch({ term: searchTerm, system: selectedSystem, confidence: minConfidence });
+  };
+
+  // AUTO-SEARCH: when selectedSystem or minConfidence changes after an initial search,
+  // automatically re-run the most recent search (debounced to avoid rapid calls while sliding).
+  useEffect(() => {
+    if (!hasSearched) return; // don't auto-run before first search
+    if (!searchTerm || !searchTerm.trim()) return; // nothing to search
+
+    // debounce (300ms)
+    const debounceMs = 300;
+    const timer = setTimeout(() => {
+      // perform search with the new system/confidence but same searchTerm
+      performSearch({ term: searchTerm, system: selectedSystem, confidence: minConfidence });
+    }, debounceMs);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSystem, minConfidence]); // run when system or confidence changes
 
   // Handle row click to navigate to details page
   const handleRowClick = (mapping) => {

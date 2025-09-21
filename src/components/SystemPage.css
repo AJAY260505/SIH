@@ -1,3 +1,5 @@
+/* SystemPage.css (updated dark-mode fixes) */
+
 .system-page {
   padding: 2rem 0 4rem;
 }
@@ -23,59 +25,57 @@
 }
 
 /* Enhanced Search Bar Styles */
-.search-form {
+.search-forms {
   display: flex;
-  margin-bottom: 2rem;
-  position: relative;
-  max-width: 700px;
+  width: 80%;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
   margin-left: auto;
   margin-right: auto;
-
-  border-radius: 50px;
-  transition: all 0.3s ease;
 }
 
-.search-form:focus-within {
-  box-shadow: 0 6px 25px rgba(76, 175, 80, 0.15);
-  transform: translateY(-2px);
-}
-
-.search-input {
+.search-inputs {
   flex: 1;
-  padding: 1.2rem 1.5rem;
+  padding: 18px 25px;
   border: none;
-  border-radius: 50px 0 0 50px;
-  font-size: 1rem;
+  background: #f8f9fa;
+  font-size: 1.1rem;
+  color: #2c3e50;
   outline: none;
-  background: transparent;
   transition: all 0.3s ease;
 }
 
-.search-input::placeholder {
-  color: #888;
-  font-weight: 400;
+.search-inputs:focus {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #3498db;
 }
 
-.search-button {
-  padding: 1.2rem 1.8rem;
-  background: linear-gradient(135deg, #1e88e5, #42a5f5);
-  color: white;
+.search-inputs::placeholder {
+  color: #a0a9b3;
+}
+
+.search-buttons {
+  padding: 0 30px;
   border: none;
-  border-radius: 0 50px 50px 0;
-  cursor: pointer;
-  font-size: 1rem;
+  background-color: #69b5f2;
+  color: white;
+  font-size: 1.1rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.search-button:hover {
-  background: linear-gradient(135deg, #43a047, #1b5e20);
+.search-buttons:hover {
+  background: #42a5f5;
 }
 
-.search-button:disabled {
-  background: linear-gradient(135deg, #cccccc, #999999);
+.search-buttons:disabled {
+  background: #bdc3c7;
   cursor: not-allowed;
 }
 
@@ -85,40 +85,110 @@
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: white;
-  animation: spin 0.8s ease infinite;
-  margin: 0 auto;
+  animation: spin 1s ease-in-out infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-/* Focus state for input */
-.search-input:focus {
-  background: rgba(76, 175, 80, 0.05);
+/* Results table styles */
+.mapping-table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  background: white;
 }
 
-/* Responsive adjustments for search bar */
-@media (max-width: 768px) {
-  .search-form {
-    flex-direction: column;
-    border-radius: 16px;
-    max-width: 90%;
-  }
-  
-  .search-input {
-    border-radius: 16px 16px 0 0;
-    padding: 1rem 1.2rem;
-  }
-  
-  .search-button {
-    border-radius: 0 0 16px 16px;
-    padding: 1rem;
-  }
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
 }
 
+.mapping-table thead {
+  background: linear-gradient(90deg, #f4f7fb, #eef5ff);
+}
+
+.mapping-table th, .mapping-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: #0d1b2a;
+  font-size: 0.95rem;
+}
+
+.mapping-table th {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.mapping-row {
+  background: white;
+  transition: background 0.18s ease, transform 0.12s ease;
+}
+
+.mapping-row:hover {
+  background: rgba(66, 165, 245, 0.06);
+  transform: translateY(-2px);
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+/* small helper styles */
+.badge {
+  display: inline-block;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #e6f4ff;
+  color: #0b60a8;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge.muted {
+  background: #f2f2f2;
+  color: #666;
+}
+
+/* similarity score mini bar for results that include similarity */
+.similarity-score {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 120px;
+}
+
+.score-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.score-bar {
+  height: 8px;
+  background: #eee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #42a5f5, #1e88e5);
+}
+
+/* Result card grid (kept from original) */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* Info / benefits */
 .system-info-content {
   margin-top: 3rem;
 }
@@ -149,100 +219,139 @@
   color: #0d1b2a;
 }
 
-/* Dark mode adjustments */
+/* =========== DARK MODE OVERRIDES (stronger, full coverage) =========== */
+
+/* general text in dark context */
 .dark .system-info h2,
 .dark .system-info p,
 .dark .system-info-content p,
 .dark .system-benefits li {
-  color: var(--text-color);
+  color: var(--text-color, #e6eef6);
 }
 
-.dark .search-form {
-  background: #050607;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+/* Make search box black in dark mode */
+.dark .search-forms {
+  background: #0b0b0b;          /* near-black form bg */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.03);
 }
 
-.dark .search-form:focus-within {
-  box-shadow: 0 6px 25px rgba(76, 175, 80, 0.25);
-}
-
-.dark .search-input {
+.dark .search-inputs {
   background: transparent;
-  color: var(--text-color);
+  color: #e6eef6;
 }
 
-.dark .search-input:focus {
-  background: rgba(76, 175, 80, 0.1);
+.dark .search-inputs:focus {
+  background: rgba(255,255,255,0.02);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.02);
 }
 
-.dark .search-input::placeholder {
-  color: #a0aec0;
+.dark .search-inputs::placeholder {
+  color: #9aa7ba;
 }
 
-/* Responsive adjustments */
+.dark .search-buttons {
+  background: linear-gradient(90deg, #1b6fb8, #0f4e86);
+  color: #fff;
+}
+
+.dark .search-buttons:hover {
+  filter: brightness(1.05);
+}
+
+/* dark table container */
+.dark .mapping-table-container {
+  background: #050607; /* very dark */
+  box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* head row subtle translucent background */
+.dark .mapping-table thead {
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+/* table cells text + borders */
+.dark .mapping-table th,
+.dark .mapping-table td {
+  color: #e6eef6; /* light text */
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  background: transparent; /* remove white cell backgrounds */
+}
+
+/* make rows transparent by default and darker on hover */
+.dark .mapping-row {
+  background: transparent; /* important: remove white */
+  transition: background 0.18s ease, transform 0.12s ease;
+}
+
+.dark .mapping-row:hover {
+  background: rgba(255,255,255,0.03); /* subtle highlight */
+  transform: translateY(-2px);
+}
+
+/* badges in dark */
+.dark .badge {
+  background: rgba(255,255,255,0.04);
+  color: #cfe8ff;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.dark .badge.muted {
+  background: rgba(255,255,255,0.02);
+  color: #9da9b8;
+  border: 1px solid rgba(255,255,255,0.02);
+}
+
+/* score bar dark adjustments */
+.dark .score-bar {
+  background: rgba(255,255,255,0.04);
+}
+
+.dark .score-fill {
+  background: linear-gradient(90deg, #7fcfff, #3aa0ff);
+}
+
+/* header/title colors inside results area */
+.dark .system-results h3,
+.dark .system-results h3 em,
+.dark .system-results h3 strong {
+  color: #e6eef6;
+}
+
+/* small tweaks for other UI elements inside dark mode */
+.dark .system-info h2 {
+  color: #eaf4ff;
+}
+
+/* Ensure footer-like or info boxes use lighter text on dark bg */
+.dark .system-info-content h3,
+.dark .system-benefits h4 {
+  color: #cde8ff;
+}
+
+/* responsive adjustments */
 @media (max-width: 768px) {
   .system-header {
     flex-direction: column;
     text-align: center;
   }
+
+  .search-forms {
+    width: 94%;
+    flex-direction: column;
+    border-radius: 12px;
+  }
+
+  .search-inputs {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .search-buttons {
+    border-radius: 0 0 12px 12px;
+  }
+
+  .mapping-table {
+    min-width: 0;
+  }
 }
-.search-forms {
-            display: flex;
-            width: 80%;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .search-inputs {
-            flex: 1;
-            padding: 18px 25px;
-            border: none;
-            background: #f8f9fa;
-            font-size: 1.1rem;
-            color: #2c3e50;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        
-        .search-inputs:focus {
-            background: #fff;
-            box-shadow: inset 0 0 0 2px #3498db;
-        }
-        
-        .search-inputs::placeholder {
-            color: #a0a9b3;
-        }
-        
-        .search-buttons {
-            padding: 0 30px;
-            border: none;
-          background-color: #69b5f2;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .search-buttons:hover {
-            background: #42a5f5;
-        }
-        
-        .search-buttons:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-        }
-        
-        .loading-spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
