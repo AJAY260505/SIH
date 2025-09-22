@@ -1,73 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { updateProfile, signOut } from 'firebase/auth';
-import { auth, db } from '../firebase/config';
-import './ProfilePage.css';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { updateProfile, signOut } from "firebase/auth";
+import { auth, db } from "../firebase/config";
+import "./ProfilePage.css";
 
 const ProfilePage = ({ user }) => {
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [imageError, setImageError] = useState(false); // 🔹 Track image load error
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    age: '',
-    gender: '',
-    dob: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zip: '',
-    specialty: '',
-    education: '',
-    experience: '',
-    availability: ''
+    name: "",
+    email: "",
+    age: "",
+    gender: "",
+    dob: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    specialty: "",
+    education: "",
+    experience: "",
+    availability: "",
   });
+  const [avatar, setAvatar] = useState("/user.jpg"); // default avatar from public folder
+  const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
-  const defaultAvatar = 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_incoming&w=740&q=80';
 
   // 🔹 Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
             const data = userDoc.data();
             setUserData(data);
             setFormData({
-              name: data.name || user.displayName || '',
-              email: data.email || user.email || '',
-              age: data.age || '',
-              gender: data.gender || '',
-              dob: data.dob || '',
-              phone: data.phone || '',
-              address: data.address || '',
-              city: data.city || '',
-              state: data.state || '',
-              zip: data.zip || '',
-              specialty: data.specialty || '',
-              education: data.education || '',
-              experience: data.experience || '',
-              availability: data.availability || ''
+              name: data.name || user.displayName || "",
+              email: data.email || user.email || "",
+              age: data.age || "",
+              gender: data.gender || "",
+              dob: data.dob || "",
+              phone: data.phone || "",
+              address: data.address || "",
+              city: data.city || "",
+              state: data.state || "",
+              zip: data.zip || "",
+              specialty: data.specialty || "",
+              education: data.education || "",
+              experience: data.experience || "",
+              availability: data.availability || "",
             });
+            setAvatar(data.avatar || "/user.jpg"); // load saved avatar or default
           } else {
             // Create a new doc if not exists
             const newUser = {
-              name: user.displayName || '',
-              email: user.email || '',
-              createdAt: serverTimestamp()
+              name: user.displayName || "",
+              email: user.email || "",
+              avatar: "/user.jpg",
+              createdAt: serverTimestamp(),
             };
-            await setDoc(doc(db, 'users', user.uid), newUser);
+            await setDoc(doc(db, "users", user.uid), newUser);
             setUserData(newUser);
             setFormData({ ...formData, ...newUser });
+            setAvatar("/user.jpg");
           }
         } catch (error) {
-          console.error('Error fetching user data:', error);
+          console.error("Error fetching user data:", error);
         }
       }
     };
@@ -78,46 +81,78 @@ const ProfilePage = ({ user }) => {
   // 🔹 Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  // 🔹 Save changes
+  // 🔹 Handle avatar upload
+  const handleAvatarClick = () => {
+    fileInputRef.current.click(); // open file input
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result; // store Base64
+        setAvatar(base64String);
+
+        try {
+          await setDoc(
+            doc(db, "users", user.uid),
+            {
+              avatar: base64String,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+        } catch (error) {
+          console.error("Error saving avatar:", error);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // 🔹 Save profile changes
   const handleSave = async () => {
     try {
       await setDoc(
-        doc(db, 'users', user.uid),
+        doc(db, "users", user.uid),
         {
           ...userData,
           ...formData,
-          updatedAt: serverTimestamp()
+          avatar,
+          updatedAt: serverTimestamp(),
         },
         { merge: true }
       );
 
-      setUserData({ ...userData, ...formData });
+      setUserData({ ...userData, ...formData, avatar });
       setIsEditing(false);
 
       // Update auth profile name
       if (formData.name !== user.displayName) {
         await updateProfile(auth.currentUser, {
-          displayName: formData.name
+          displayName: formData.name,
+          photoURL: avatar, // update Firebase auth photoURL as well
         });
       }
     } catch (error) {
-      console.error('Error updating user data:', error);
+      console.error("Error updating user data:", error);
     }
   };
 
-  // 🔹 Logout functionality
+  // 🔹 Logout
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/'); // redirect to home after logout
+      navigate("/"); // redirect to home after logout
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error("Error logging out:", error);
     }
   };
 
@@ -127,7 +162,9 @@ const ProfilePage = ({ user }) => {
         <div className="container">
           <div className="not-signed-in">
             <h2>Please sign in to view your profile</h2>
-            <Link to="/" className="cta-button">Go to Home</Link>
+            <Link to="/" className="cta-button">
+              Go to Home
+            </Link>
           </div>
         </div>
       </div>
@@ -143,15 +180,19 @@ const ProfilePage = ({ user }) => {
           transition={{ duration: 0.6 }}
           className="profile-header"
         >
-          <div className="profile-avatar">
-            <img
-              src={user.photoURL || '/default-avatar.png'}
-              alt={user.displayName || 'User'}
+          <div className="profile-avatar" onClick={handleAvatarClick}>
+            <img src={avatar} alt="User Avatar" />
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              accept="image/*"
+              onChange={handleAvatarChange}
             />
           </div>
           <div className="profile-info">
-            <h2>{userData?.name || user.displayName || 'User'}</h2>
-            <p>{userData?.specialty || 'Healthcare Professional'}</p>
+            <h2>{userData?.name || user.displayName || "User"}</h2>
+            <p>{userData?.specialty || "Healthcare Professional"}</p>
             <p>{userData?.email || user.email}</p>
           </div>
 
@@ -162,7 +203,7 @@ const ProfilePage = ({ user }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              {isEditing ? 'Cancel' : 'Edit Profile'}
+              {isEditing ? "Cancel" : "Edit Profile"}
             </motion.button>
 
             <motion.button
@@ -192,12 +233,12 @@ const ProfilePage = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <span>{userData?.name || 'Not provided'}</span>
+                  <span>{userData?.name || "Not provided"}</span>
                 )}
               </div>
               <div className="detail-row">
                 <label>Email</label>
-                <span>{userData?.email || user.email || 'Not provided'}</span>
+                <span>{userData?.email || user.email || "Not provided"}</span>
               </div>
               <div className="detail-row">
                 <label>Age</label>
@@ -209,7 +250,7 @@ const ProfilePage = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <span>{userData?.age || 'Not provided'}</span>
+                  <span>{userData?.age || "Not provided"}</span>
                 )}
               </div>
               <div className="detail-row">
@@ -224,13 +265,16 @@ const ProfilePage = ({ user }) => {
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Other</option>
-                    <option value="prefer-not-to-say">Prefer not to say</option>
+                    <option value="prefer-not-to-say">
+                      Prefer not to say
+                    </option>
                   </select>
                 ) : (
                   <span>
                     {userData?.gender
-                      ? userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1)
-                      : 'Not provided'}
+                      ? userData.gender.charAt(0).toUpperCase() +
+                        userData.gender.slice(1)
+                      : "Not provided"}
                   </span>
                 )}
               </div>
@@ -244,7 +288,7 @@ const ProfilePage = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <span>{userData?.dob || 'Not provided'}</span>
+                  <span>{userData?.dob || "Not provided"}</span>
                 )}
               </div>
               <div className="detail-row">
@@ -257,7 +301,7 @@ const ProfilePage = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <span>{userData?.phone || 'Not provided'}</span>
+                  <span>{userData?.phone || "Not provided"}</span>
                 )}
               </div>
             </div>
@@ -277,7 +321,7 @@ const ProfilePage = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <span>{userData?.address || 'Not provided'}</span>
+                  <span>{userData?.address || "Not provided"}</span>
                 )}
               </div>
               <div className="detail-row">
@@ -290,7 +334,7 @@ const ProfilePage = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <span>{userData?.city || 'Not provided'}</span>
+                  <span>{userData?.city || "Not provided"}</span>
                 )}
               </div>
               <div className="detail-row">
@@ -303,7 +347,7 @@ const ProfilePage = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <span>{userData?.state || 'Not provided'}</span>
+                  <span>{userData?.state || "Not provided"}</span>
                 )}
               </div>
               <div className="detail-row">
@@ -316,7 +360,7 @@ const ProfilePage = ({ user }) => {
                     onChange={handleInputChange}
                   />
                 ) : (
-                  <span>{userData?.zip || 'Not provided'}</span>
+                  <span>{userData?.zip || "Not provided"}</span>
                 )}
               </div>
             </div>

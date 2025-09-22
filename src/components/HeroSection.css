@@ -14,7 +14,7 @@
 }
 
 .hero-content {
-  max-width: 900px;
+  max-width: 850px;
   z-index: 3;
   position: relative;
   margin: 0 auto;
@@ -34,11 +34,12 @@
 }
 
 .hero-content p {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   margin-bottom: 2rem;
   max-width: 800px;
   font-style: italic;
   color: var(--text-color);
+  line-height: 1.6;
 }
 
 .cta-button {
@@ -114,7 +115,7 @@
 }
 
 .hero-visual {
-  margin-top: 3rem;
+  margin-top: 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -125,7 +126,7 @@
 
 .doctor-icon {
   font-size: 4rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .data-flow {
@@ -157,11 +158,12 @@
 .medicine-icons {
   display: flex;
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .medicine-icon {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   object-fit: contain;
   background-color: var(--card-bg);
   padding: 0.5rem;
@@ -175,7 +177,7 @@
   position: absolute;
   display: none;
   z-index: 2;
-  opacity: 0.8;
+  opacity: 0.85;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -189,19 +191,19 @@
 /* Left Image */
 .hero-image-left {
   left: 0.5rem;
-  top: 10px;
+  top: 20px;
 }
 .hero-image-left img {
-  max-width: 500px;
+  max-width: 450px; /* reduced for better balance */
 }
 
 /* Right Image */
 .hero-image-right {
   right: 1rem;
-  top: 90px;
+  top: 100px;
 }
 .hero-image-right img {
-  max-width: 390px; /* updated to 390px */
+  max-width: 350px; /* slightly smaller for better proportion */
 }
 
 /* Dark mode */
@@ -261,10 +263,10 @@
 /* Very large screens */
 @media (min-width: 1440px) {
   .hero-image-left img {
-    max-width: 550px;
+    max-width: 500px;
   }
   .hero-image-right img {
-    max-width: 390px; /* keep right image 390px */
+    max-width: 370px; /* slightly bigger than 350px for large screens */
   }
   
   .hero-content {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import './SearchPage.css';
@@ -26,9 +26,56 @@ const SearchPage = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [hasSearched, setHasSearched] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [recommendations, setRecommendations] = useState([]);
   const navigate = useNavigate();
+  const searchInputRef = useRef(null);
 
   const API_BASE_URL = "http://localhost:8000";
+
+  // Fetch autocomplete suggestions
+  const fetchSuggestions = async (term) => {
+    if (!term || term.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const data = await fetchData(
+        `${API_BASE_URL}/terminologies/mappings/?system=${selectedSystem}&q=${encodeURIComponent(term)}&min_confidence=${minConfidence}&limit=10`
+      );
+
+      if (data) {
+        // Combine results and fuzzy matches, sort by confidence/similarity
+        const allSuggestions = [
+          ...(data.results || []).map(item => ({
+            name: item.source_term.english_name,
+            type: 'mapped',
+            confidence: item.confidence_score,
+            id: item.mapping_id
+          })),
+          ...(data.fuzzy_matches_without_mappings || []).map(item => ({
+            name: item.english_name,
+            type: 'fuzzy',
+            confidence: item.similarity,
+            id: item.term_id
+          }))
+        ]
+        .sort((a, b) => b.confidence - a.confidence)
+        .slice(0, 10);
+
+        setSuggestions(allSuggestions);
+        
+        // Set recommendations for display below search
+        setRecommendations(allSuggestions.slice(0, 5));
+      }
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      setSuggestions([]);
+      setRecommendations([]);
+    }
+  };
 
   const performSearch = async ({ term = searchTerm, system = selectedSystem, confidence = minConfidence } = {}) => {
     if (!term || !term.trim()) return;
@@ -57,6 +104,7 @@ const SearchPage = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
+    setShowSuggestions(false);
     await performSearch({ term: searchTerm, system: selectedSystem, confidence: minConfidence });
   };
 
@@ -72,6 +120,14 @@ const SearchPage = () => {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSystem, minConfidence]);
+
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      fetchSuggestions(searchTerm);
+    }, 200);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchTerm, selectedSystem, minConfidence]);
 
   const handleViewDetails = async (mapping) => {
     setIsSearching(true);
@@ -122,6 +178,23 @@ const SearchPage = () => {
     }
   };
 
+  const handleSuggestionClick = (suggestion) => {
+    setSearchTerm(suggestion.name);
+    setShowSuggestions(false);
+    performSearch({ term: suggestion.name, system: selectedSystem, confidence: minConfidence });
+  };
+
+  const handleRecommendationClick = (recommendation) => {
+    setSearchTerm(recommendation.name);
+    setShowSuggestions(false);
+    performSearch({ term: recommendation.name, system: selectedSystem, confidence: minConfidence });
+    
+    // Scroll to results section
+    setTimeout(() => {
+      document.querySelector('.results-section')?.scrollIntoView({ behavior: 'smooth' });
+    }, 500);
+  };
+
   const filteredResults = results && results.results ? 
     results.results.filter(item => {
       if (activeFilter === 'all') return true;
@@ -152,14 +225,38 @@ const SearchPage = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <div className="search-input-container">
-            <input
-              type="text"
-              placeholder="Enter disease or condition (e.g., fever, diabetes)"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input-large"
-              required
-            />
+            <div className="autocomplete-wrapper">
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Enter disease or condition (e.g., fever, diabetes)"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                className="search-input-large"
+                required
+              />
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="suggestions-dropdown">
+                  {suggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="suggestion-item"
+                      onMouseDown={() => handleSuggestionClick(suggestion)}
+                    >
+                      <span>{suggestion.name}</span>
+                      <span className="suggestion-confidence">
+                        {Math.round(suggestion.confidence * 100)}% match
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <motion.button 
               type="submit" 
               className="search-button-large"
@@ -202,24 +299,39 @@ const SearchPage = () => {
                 </button>
               </div>
             </div>
-
-            {/* <div className="filter-group">
-              <label>Confidence Level</label>
-              <div className="slider-container">
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={minConfidence}
-                  onChange={(e) => setMinConfidence(parseFloat(e.target.value))}
-                  className="confidence-slider"
-                />
-                <span className="slider-value">{(minConfidence * 100).toFixed(0)}%</span>
-              </div>
-            </div> */}
           </div>
         </motion.form>
+
+        {/* Recommendations Section */}
+        {recommendations.length > 0 && (
+          <motion.div 
+            className="recommendations-section"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <h3>Top Recommendations</h3>
+            <div className="recommendations-grid">
+              {recommendations.map((recommendation, index) => (
+                <motion.div 
+                  key={index}
+                  className="recommendation-card"
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleRecommendationClick(recommendation)}
+                >
+                  <div className="recommendation-content">
+                    <h4>{recommendation.name}</h4>
+                    <div className="confidence-badge">
+                      {Math.round(recommendation.confidence * 100)}% match
+                    </div>
+                  </div>
+                  <div className="recommendation-arrow">→</div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         <AnimatePresence>
           {results && (
@@ -355,8 +467,13 @@ const SearchPage = () => {
                               <button 
                                 className="view-button"
                                 onClick={() => handleViewDetails(mapping)}
+                                disabled={isSearching}
                               >
-                                View Details
+                                {isSearching ? (
+                                  <div className="loading-spinner-small"></div>
+                                ) : (
+                                  "View Details"
+                                )}
                               </button>
                             </td>
                           </motion.tr>
@@ -392,7 +509,7 @@ const SearchPage = () => {
                         <tr>
                           <th>Code</th>
                           <th>Term Name</th>
-                          {/* <th>Similarity Score</th> */}
+                          <th>Similarity</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -406,17 +523,7 @@ const SearchPage = () => {
                           >
                             <td>{item.code}</td>
                             <td>{item.english_name}</td>
-                            {/* <td>
-                              <div className="similarity-score">
-                                <div className="score-value">{(item.similarity * 100).toFixed(1)}%</div>
-                                <div className="score-bar">
-                                  <div 
-                                    className="score-fill"
-                                    style={{ width: `${item.similarity * 100}%` }}
-                                  ></div>
-                                </div>
-                              </div>
-                            </td> */}
+                            <td>{(item.similarity * 100).toFixed(1)}%</td>
                           </motion.tr>
                         ))}
                       </tbody>
@@ -444,7 +551,7 @@ const SearchPage = () => {
             <motion.div whileHover={{ y: -10, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link to="/ayurveda" className="system-card">
                 <div className="system-icon">
-                  <img src="https://images.rawpixel.com/image_png_social_landscape/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTAxL3Jhd3BpeGVsX29mZmljZV81MV8zZF9yZW5kZXJfb2ZfYXl1cnZlZGFfaXNvbGF0ZWRfb25fd2hpdGVfYmFja19hMzY3ZWI5Ny01NTdmLTQ4ODYtYjg5My1hNGExY2VhZTgzMjAucG5n.png" alt="Ayurveda" />
+                  <img src="https://images.rawpixel.com/image_png_social_landscape/cHJpdmF0ZS9sci9pbWFnZXSvd2Vic2l0ZS8yMDI0LTAxL3Jhd3BpeGVsX29mZmljZV81MV8zZF9yZW5kZXJfb2ZfYXl1cnZlZGFfaXNvbGF0ZWRfb25fd2hiatGVfYmFja19hMzY3ZWI5Ny01NTdmLTQ4ODYtYjg5My1hNGExY2VhZTgzMjAucG5n.png" alt="Ayurveda" />
                 </div>
                 <h4>Ayurveda</h4>
                 <p>Ancient Indian system of natural healing</p>

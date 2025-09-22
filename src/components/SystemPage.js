@@ -48,7 +48,7 @@ const SystemPage = ({ systemName }) => {
       title: "ICD-11",
       description: "International Classification of Diseases 11th Revision",
       image: "/img4.png",
-      endpoint: "http://localhost/icd/release/11/2025-01/mms/search?q="
+      endpoint: "http://localhost:8000/terminologies/icd11/search/?q="
     }
   };
 
@@ -85,13 +85,14 @@ const SystemPage = ({ systemName }) => {
     }
   };
 
-  // Navigate with the same data (for both row + card)
+  // Navigate with the full item data
   const handleRowClick = (item) => {
     navigate('/mapping-details', {
       state: {
         item,
         system: systemName,
-        query: searchTerm
+        query: searchTerm,
+        source: 'system-page'
       }
     });
   };
