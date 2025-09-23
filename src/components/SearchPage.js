@@ -267,14 +267,9 @@ const systemCards = [
 ];
   return (
     <div className="search-page">
-      <div className="container">
+      <div className="containers">
         {/* Header with Theme Toggle */}
-        <header className="page-header">
-          <div className="header-content">
-            <h1 className="app-title">Traditional Medicine Mapper</h1>
-           
-          </div>
-        </header>
+     
 
         <motion.div
           className="hero-section"
