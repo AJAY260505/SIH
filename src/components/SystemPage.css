@@ -1,84 +1,298 @@
-/* SystemPage.css (updated dark-mode fixes) */
+/* ==========================================================
+   SystemPage.css  –  COMPLETE  (light + dark)
+   ========================================================== */
 
-.system-page {
-  padding: 2rem 0 4rem;
+/* ---------- 1.  TOKENS (light default) ---------- */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-card: #ffffff;
+
+  --text-primary: #000000;
+  --text-secondary: #212529;
+  --text-tertiary: #495057;
+  --text-muted: #6c757d;
+
+  --border-color: #dee2e6;
+  --border-light: #f1f3f4;
+
+  --accent-primary: #1e88e5;
+  --accent-secondary: #42a5f5;
+  --accent-success: #198754;
+  --accent-warning: #ffc107;
+  --accent-error: #dc3545;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .10);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .10), 0 2px 4px -1px rgba(0, 0, 0, .06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, .10), 0 4px 6px -2px rgba(0, 0, 0, .05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, .10), 0 10px 10px -5px rgba(0, 0, 0, .04);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
+/* ---------- 2.  DARK OVERRIDES  ---------- */
+.dark {
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --bg-tertiary: #222222;
+  --bg-card: #000000;
+
+  --text-primary: #ffffff;
+  --text-secondary: #f8f9fa;
+  --text-tertiary: #e9ecef;
+  --text-muted: #adb5bd;
+
+  --border-color: #333333;
+  --border-light: #444444;
+
+  --accent-primary: #42a5f5;
+  --accent-secondary: #90caf9;
+  --accent-success: #4caf50;
+  --accent-warning: #ffb300;
+  --accent-error: #f44336;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .30);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .30), 0 2px 4px -1px rgba(0, 0, 0, .20);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, .30), 0 4px 6px -2px rgba(0, 0, 0, .20);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, .30), 0 10px 10px -5px rgba(0, 0, 0, .20);
+}
+
+/* ---------- 3.  PAGE SHELL  ---------- */
+.system-page {
+  padding: 2rem 0 4rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background .3s, color .3s;
+}
+
+.containers {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ---------- 4.  HEADER  ---------- */
 .system-header {
   display: flex;
   align-items: center;
   gap: 2rem;
   margin-bottom: 3rem;
 }
-
 .system-icon-large {
   font-size: 4rem;
 }
-
 .system-info h2 {
-  color: #0d1b2a;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
-
 .system-info p {
-  color: #0d1b2a;
+  color: var(--text-secondary);
 }
 
-/* Enhanced Search Bar Styles */
+/* ---------- 5.  SEARCH BAR  ---------- */
 .search-forms {
   display: flex;
   width: 80%;
-  margin-bottom: 30px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  border-radius: 12px;
-  overflow: hidden;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto 30px;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+  overflow: visible; /* CHANGED: Allow dropdown to overflow */
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  position: relative; /* ADDED: For proper dropdown positioning */
 }
-
-.search-inputs {
+.search-input-container {
+  display: flex;
+  gap: 1rem;
   flex: 1;
-  padding: 18px 25px;
-  border: none;
-  background: #f8f9fa;
+  position: relative; /* ADDED: For dropdown positioning */
+}
+.autocomplete-wrapper {
+  position: relative;
+  flex: 1;
+}
+.search-inputs {
+  width: 100%;
+  padding: 1rem 1.5rem;
   font-size: 1.1rem;
-  color: #2c3e50;
+  border: 2px solid var(--accent-primary);
+  border-radius: var(--radius-md);
   outline: none;
-  transition: all 0.3s ease;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  transition: all .3s;
 }
-
 .search-inputs:focus {
-  background: #fff;
-  box-shadow: inset 0 0 0 2px #3498db;
+  box-shadow: 0 0 0 3px rgba(66, 165, 245, .25);
 }
 
-.search-inputs::placeholder {
-  color: #a0a9b3;
+/* ---------- 6.  AUTOCOMPLETE DROPDOWN - FIXED VISIBILITY ---------- */
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 10000; /* INCREASED: Ensure it's above everything */
+  max-height: 320px;
+  overflow-y: auto;
+  margin-top: 4px;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
+.suggestion-item {
+  padding: .75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+  transition: background .2s;
+}
+.suggestion-item:hover {
+  background: var(--bg-secondary);
+}
+.suggestion-text {
+  font-weight: 600;
+}
+
+/* Enhanced pagination for suggestions */
+.sugg-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .75rem 1rem;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  position: sticky;
+  bottom: 0;
+}
+.sugg-pagination button {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: .4rem .8rem;
+  cursor: pointer;
+  font-size: .85rem;
+  transition: background .2s;
+}
+.sugg-pagination button:hover:not(:disabled) {
+  background: var(--accent-secondary);
+}
+.sugg-pagination button:disabled {
+  background: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.sugg-pagination-info {
+  font-size: .8rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.sugg-pagination-numbers {
+  display: flex;
+  gap: 0.25rem;
+}
+.sugg-page-btn {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  background: var(--bg-card);
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+.sugg-page-btn.active {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+/* Loading state for suggestions */
+.suggestions-loading {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.suggestions-empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ---------- 7.  CSV UPLOAD  ---------- */
+.upload-group {
+  display: flex;
+  align-items: center;
+}
+.upload-icon {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: transform .3s;
+}
+.upload-icon:hover {
+  transform: scale(1.1);
+}
+.upload-icon.uploading {
+  animation: pulse .6s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.upload-feedback {
+  margin: 1rem 0;
+  font-size: .95rem;
+}
+.upload-error {
+  color: var(--accent-error);
+}
+.upload-success {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--accent-success);
+}
+.success-tick {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- 8.  SEARCH BUTTON  ---------- */
 .search-buttons {
   padding: 0 30px;
   border: none;
-  background-color: #69b5f2;
-  color: white;
+  background: var(--accent-primary);
+  color: #fff;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all .3s;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
-
 .search-buttons:hover {
-  background: #42a5f5;
+  background: var(--accent-secondary);
 }
-
 .search-buttons:disabled {
   background: #bdc3c7;
   cursor: not-allowed;
 }
-
 .loading-spinner {
   width: 20px;
   height: 20px;
@@ -87,275 +301,53 @@
   border-top-color: white;
   animation: spin 1s ease-in-out infinite;
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Results table styles */
+/* ---------- 9.  RESULTS TABLE  ---------- */
 .mapping-table-container {
   width: 100%;
   overflow-x: auto;
   margin-top: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
-  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
 }
-
 .mapping-table {
   width: 100%;
   border-collapse: collapse;
   min-width: 800px;
 }
-
 .mapping-table thead {
-  background: linear-gradient(90deg, #f4f7fb, #eef5ff);
+  background: linear-gradient(90deg, var(--bg-tertiary), var(--bg-secondary));
 }
-
-.mapping-table th, .mapping-table td {
+.mapping-table th,
+.mapping-table td {
   text-align: left;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  color: #0d1b2a;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
   font-size: 0.95rem;
 }
-
 .mapping-table th {
   font-weight: 700;
   letter-spacing: 0.2px;
 }
-
 .mapping-row {
-  background: white;
+  background: var(--bg-card);
   transition: background 0.18s ease, transform 0.12s ease;
 }
-
 .mapping-row:hover {
   background: rgba(66, 165, 245, 0.06);
   transform: translateY(-2px);
 }
-
 .clickable-row {
   cursor: pointer;
 }
 
-/* small helper styles */
-.badge {
-  display: inline-block;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: #e6f4ff;
-  color: #0b60a8;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.badge.muted {
-  background: #f2f2f2;
-  color: #666;
-}
-
-/* similarity score mini bar for results that include similarity */
-.similarity-score {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 120px;
-}
-
-.score-value {
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-.score-bar {
-  height: 8px;
-  background: #eee;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.score-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #42a5f5, #1e88e5);
-}
-
-/* Result card grid (kept from original) */
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
-}
-
-/* Info / benefits */
-.system-info-content {
-  margin-top: 3rem;
-}
-
-.system-info-content h3 {
-  color: var(--secondary-color);
-  margin-bottom: 1rem;
-}
-
-.system-info-content p {
-  margin-bottom: 1.5rem;
-  line-height: 1.8;
-  color: #0d1b2a;
-}
-
-.system-benefits h4 {
-  color: var(--accent-color);
-  margin-bottom: 1rem;
-}
-
-.system-benefits ul {
-  list-style-position: inside;
-  padding-left: 1rem;
-}
-
-.system-benefits li {
-  margin-bottom: 0.5rem;
-  color: #0d1b2a;
-}
-
-/* =========== DARK MODE OVERRIDES (stronger, full coverage) =========== */
-
-/* general text in dark context */
-.dark .system-info h2,
-.dark .system-info p,
-.dark .system-info-content p,
-.dark .system-benefits li {
-  color: var(--text-color, #e6eef6);
-}
-
-/* Make search box black in dark mode */
-.dark .search-forms {
-  background: #0b0b0b;          /* near-black form bg */
-  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.03);
-}
-
-.dark .search-inputs {
-  background: transparent;
-  color: #e6eef6;
-}
-
-.dark .search-inputs:focus {
-  background: rgba(255,255,255,0.02);
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.02);
-}
-
-.dark .search-inputs::placeholder {
-  color: #9aa7ba;
-}
-
-.dark .search-buttons {
-  background: linear-gradient(90deg, #1b6fb8, #0f4e86);
-  color: #fff;
-}
-
-.dark .search-buttons:hover {
-  filter: brightness(1.05);
-}
-
-/* dark table container */
-.dark .mapping-table-container {
-  background: #050607; /* very dark */
-  box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-  border: 1px solid rgba(255,255,255,0.04);
-}
-
-/* head row subtle translucent background */
-.dark .mapping-table thead {
-  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-}
-
-/* table cells text + borders */
-.dark .mapping-table th,
-.dark .mapping-table td {
-  color: #e6eef6; /* light text */
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-  background: transparent; /* remove white cell backgrounds */
-}
-
-/* make rows transparent by default and darker on hover */
-.dark .mapping-row {
-  background: transparent; /* important: remove white */
-  transition: background 0.18s ease, transform 0.12s ease;
-}
-
-.dark .mapping-row:hover {
-  background: rgba(255,255,255,0.03); /* subtle highlight */
-  transform: translateY(-2px);
-}
-
-/* badges in dark */
-.dark .badge {
-  background: rgba(255,255,255,0.04);
-  color: #cfe8ff;
-  border: 1px solid rgba(255,255,255,0.03);
-}
-
-.dark .badge.muted {
-  background: rgba(255,255,255,0.02);
-  color: #9da9b8;
-  border: 1px solid rgba(255,255,255,0.02);
-}
-
-/* score bar dark adjustments */
-.dark .score-bar {
-  background: rgba(255,255,255,0.04);
-}
-
-.dark .score-fill {
-  background: linear-gradient(90deg, #7fcfff, #3aa0ff);
-}
-
-/* header/title colors inside results area */
-.dark .system-results h3,
-.dark .system-results h3 em,
-.dark .system-results h3 strong {
-  color: #e6eef6;
-}
-
-/* small tweaks for other UI elements inside dark mode */
-.dark .system-info h2 {
-  color: #eaf4ff;
-}
-
-/* Ensure footer-like or info boxes use lighter text on dark bg */
-.dark .system-info-content h3,
-.dark .system-benefits h4 {
-  color: #cde8ff;
-}
-
-/* responsive adjustments */
-@media (max-width: 768px) {
-  .system-header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .search-forms {
-    width: 94%;
-    flex-direction: column;
-    border-radius: 12px;
-  }
-
-  .search-inputs {
-    border-radius: 12px 12px 0 0;
-  }
-
-  .search-buttons {
-    border-radius: 0 0 12px 12px;
-  }
-
-  .mapping-table {
-    min-width: 0;
-  }
-}
-/* Pagination Buttons */
+/* ---------- 10.  PAGINATION  ---------- */
 .pagination {
   display: flex;
   justify-content: center;
@@ -364,32 +356,134 @@
   gap: 6px;
   flex-wrap: wrap;
 }
-
 .pagination button {
-  background: #f0f0f0;
-  color: #333;
-  border: 1px solid #ccc;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   padding: 0.5rem 0.8rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.3s;
 }
-
 .pagination button:hover {
-  background: #1e88e5;
+  background: var(--accent-primary);
   color: white;
-  border-color: #1e88e5;
+  border-color: var(--accent-primary);
 }
-
 .pagination button:disabled {
-  background: #ddd;
+  background: var(--bg-tertiary);
   cursor: not-allowed;
-  color: #888;
+  opacity: 0.6;
 }
-
 .pagination .active-page {
-  background: #1e88e5;
+  background: var(--accent-primary);
   color: white;
-  border-color: #1e88e5;
+  border-color: var(--accent-primary);
 }
 
+/* ---------- 11.  ABOUT / BENEFITS  ---------- */
+.system-info-content {
+  margin-top: 3rem;
+}
+.system-info-content h3 {
+  color: var(--accent-primary);
+  margin-bottom: 1rem;
+}
+.system-info-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+.system-benefits h4 {
+  color: var(--accent-secondary);
+  margin-bottom: 1rem;
+}
+.system-benefits ul {
+  list-style-position: inside;
+  padding-left: 1rem;
+}
+.system-benefits li {
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+/* ---------- 12.  DARK FIXES (high-specificity overrides)  ---------- */
+.dark .system-info h2,
+.dark .system-info p,
+.dark .system-info-content p,
+.dark .system-benefits li {
+  color: var(--text-primary);
+}
+
+.dark .search-forms {
+  background: #0b0b0b;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+.dark .search-inputs {
+  background: transparent;
+  color: #e6eef6;
+}
+.dark .search-inputs:focus {
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.02);
+}
+.dark .search-inputs::placeholder {
+  color: #9aa7ba;
+}
+.dark .search-buttons {
+  background: linear-gradient(90deg, #1b6fb8, #0f4e86);
+}
+.dark .search-buttons:hover {
+  filter: brightness(1.05);
+}
+
+.dark .mapping-table-container {
+  background: #050607;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.dark .mapping-table thead {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+}
+.dark .mapping-table th,
+.dark .mapping-table td {
+  color: #e6eef6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  background: transparent;
+}
+.dark .mapping-row {
+  background: transparent;
+}
+.dark .mapping-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ---------- 13.  RESPONSIVE  ---------- */
+@media (max-width: 768px) {
+  .system-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .search-forms {
+    width: 94%;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+  }
+  .search-inputs {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .search-buttons {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+  .mapping-table {
+    min-width: 0;
+  }
+  .sugg-pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .sugg-pagination-numbers {
+    order: -1;
+  }
+}
