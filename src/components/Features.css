@@ -1,9 +1,14 @@
-.features {
+.dark .features {
   padding: 6rem 2rem;
-  background: var(--card-bg);
+  background: black;
   position: relative;
   overflow: hidden;
-  background-color:  linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(33, 150, 243, 0.1) 100%);
+}
+.features {
+  padding: 6rem 2rem;
+  background: white;
+  position: relative;
+  overflow: hidden;
 }
 
 .features::before {
@@ -13,7 +18,6 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(to right, transparent, var(--border-color), transparent);
 }
 
 .features h2 {
@@ -58,7 +62,11 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.05), rgba(33, 150, 243, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(76, 175, 80, 0.05),
+    rgba(33, 150, 243, 0.05)
+  );
   opacity: 0;
   transition: opacity 0.4s ease;
 }
@@ -79,13 +87,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color:#1e88e5;
+  color: #1e88e5;
   border-radius: 20px;
 }
 
 .feature-card h3 {
   margin-bottom: 1rem;
- color:#1e88e5;
+  color: #1e88e5;
   font-style: italic;
   font-size: 1.4rem;
   position: relative;
@@ -103,7 +111,7 @@
 
 /* Dark mode */
 .dark .features {
-  background: var(--card-bg-dark);
+  background: #000; /* ✅ Force black background */
 }
 
 .dark .feature-card {
@@ -112,7 +120,11 @@
 }
 
 .dark .feature-card::before {
-  background: linear-gradient(135deg, rgba(102, 144, 187, 0.1), rgba(90, 172, 239, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(102, 144, 187, 0.1),
+    rgba(90, 172, 239, 0.1)
+  );
 }
 
 .dark .feature-card p {
@@ -130,17 +142,17 @@
   .features {
     padding: 4rem 1.5rem;
   }
-  
+
   .features h2 {
     font-size: 2.2rem;
     margin-bottom: 3rem;
   }
-  
+
   .features-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   .feature-card {
     padding: 2rem 1.5rem;
   }

@@ -150,7 +150,6 @@
 }
 
 .search-input-large:focus {
-  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -297,7 +296,7 @@
   font-style: italic;
   background: linear-gradient(135deg, #1e88e5, #42a5f5);
   color: white;
-  border-color: #082036;
+  border-color: #0f1f2e;
 }
 
 .filter-btn:hover:not(.active) {
