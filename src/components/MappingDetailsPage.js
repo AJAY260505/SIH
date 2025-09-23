@@ -14,6 +14,28 @@ const fetchData = async (url) => {
   }
 };
 
+// Function to fetch all paginated data
+const fetchAllPaginatedData = async (baseUrl, searchTerm) => {
+  let allResults = [];
+  let nextUrl = `${baseUrl}?q=${encodeURIComponent(searchTerm)}`;
+  
+  try {
+    while (nextUrl) {
+      const data = await fetchData(nextUrl);
+      if (data && data.results) {
+        allResults = [...allResults, ...data.results];
+        nextUrl = data.next; // Assuming your API uses 'next' for pagination
+      } else {
+        break;
+      }
+    }
+    return { results: allResults, count: allResults.length };
+  } catch (error) {
+    console.error("Error fetching paginated data:", error);
+    return { results: [], count: 0 };
+  }
+};
+
 const MappingDetailsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -24,42 +46,172 @@ const MappingDetailsPage = () => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [detailedData, setDetailedData] = useState(null);
   const [theme, setTheme] = useState('light');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   const API_BASE_URL = "http://localhost:8000";
 
+  // Sync theme with localStorage and header
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    const updateTheme = () => {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    };
+
+    // Initial theme setup
+    updateTheme();
+
+    // Listen for theme changes from header
+    const handleStorageChange = (e) => {
+      if (e.key === 'theme') {
+        updateTheme();
+      }
+    };
+
+    // Listen for custom theme change event (if header triggers it)
+    const handleThemeChange = (e) => {
+      if (e.detail && e.detail.theme) {
+        setTheme(e.detail.theme);
+        localStorage.setItem('theme', e.detail.theme);
+        document.documentElement.setAttribute('data-theme', e.detail.theme);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('themeChange', handleThemeChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('themeChange', handleThemeChange);
+    };
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
+  // Pagination functions
+  const getCurrentPageData = (data) => {
+    if (!data?.results?.length) return [];
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return data.results.slice(startIndex, endIndex);
   };
 
-  // Fetch initial search data
+  const getTotalPages = (data) => {
+    if (!data?.results?.length) return 0;
+    return Math.ceil(data.results.length / itemsPerPage);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderPagination = (data) => {
+    const totalPages = getTotalPages(data);
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        <button 
+          className="pagination-btn"
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        >
+          First
+        </button>
+        
+        <button 
+          className="pagination-btn"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        
+        {startPage > 1 && (
+          <span className="pagination-ellipsis">...</span>
+        )}
+        
+        {pageNumbers.map(number => (
+          <button
+            key={number}
+            className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
+            onClick={() => handlePageChange(number)}
+          >
+            {number}
+          </button>
+        ))}
+        
+        {endPage < totalPages && (
+          <span className="pagination-ellipsis">...</span>
+        )}
+        
+        <button 
+          className="pagination-btn"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+        
+        <button 
+          className="pagination-btn"
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        >
+          Last
+        </button>
+        
+        <span className="pagination-info">
+          Page {currentPage} of {totalPages} ({data.results.length} total items)
+        </span>
+      </div>
+    );
+  };
+
+  // Fetch initial search data with all pages
   useEffect(() => {
     const fetchAllData = async () => {
       if (searchTerm) {
         setIsLoading(true);
         try {
           const [ayurvedaData, unaniData, siddhaData, icd11Data, mappingData] = await Promise.all([
-            fetchData(`${API_BASE_URL}/terminologies/ayurveda/search/?q=${encodeURIComponent(searchTerm)}`),
-            fetchData(`${API_BASE_URL}/terminologies/unani/search/?q=${encodeURIComponent(searchTerm)}`),
-            fetchData(`${API_BASE_URL}/terminologies/siddha/search/?q=${encodeURIComponent(searchTerm)}`),
-            fetchData(`${API_BASE_URL}/terminologies/icd11/search/?q=${encodeURIComponent(searchTerm)}&fuzzy=true&threshold=0.3`),
+            fetchAllPaginatedData(`${API_BASE_URL}/terminologies/ayurveda/search`, searchTerm),
+            fetchAllPaginatedData(`${API_BASE_URL}/terminologies/unani/search`, searchTerm),
+            fetchAllPaginatedData(`${API_BASE_URL}/terminologies/siddha/search`, searchTerm),
+            fetchAllPaginatedData(`${API_BASE_URL}/terminologies/icd11/search`, searchTerm),
             fetchData(`${API_BASE_URL}/terminologies/mappings/?system=${system || 'ayurveda'}&q=${encodeURIComponent(searchTerm)}&min_confidence=0.1`)
           ]);
+
+          // For mapping data, combine results and fuzzy matches
+          const allMappingResults = [
+            ...(mappingData?.results || []),
+            ...(mappingData?.fuzzy_matches_without_mappings || [])
+          ];
 
           setAllData({ 
             ayurveda: ayurvedaData, 
             unani: unaniData, 
             siddha: siddhaData, 
             icd11: icd11Data, 
-            mapping: mappingData 
+            mapping: { 
+              results: allMappingResults,
+              count: allMappingResults.length
+            }
           });
 
           if (mapping) {
@@ -81,6 +233,11 @@ const MappingDetailsPage = () => {
     fetchAllData();
   }, [searchTerm, system, mapping]);
 
+  // Reset to page 1 when tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
+
   // Fetch detailed data when a specific term is selected
   const fetchDetailedData = async (termName) => {
     if (!termName) return;
@@ -88,10 +245,10 @@ const MappingDetailsPage = () => {
     setIsLoading(true);
     try {
       const [ayurvedaDetail, unaniDetail, siddhaDetail, icd11Detail, mappingDetail] = await Promise.all([
-        fetchData(`${API_BASE_URL}/terminologies/ayurveda/search/?q=${encodeURIComponent(termName)}`),
-        fetchData(`${API_BASE_URL}/terminologies/unani/search/?q=${encodeURIComponent(termName)}`),
-        fetchData(`${API_BASE_URL}/terminologies/siddha/search/?q=${encodeURIComponent(termName)}`),
-        fetchData(`${API_BASE_URL}/terminologies/icd11/search/?q=${encodeURIComponent(termName)}&fuzzy=true&threshold=0.3`),
+        fetchAllPaginatedData(`${API_BASE_URL}/terminologies/ayurveda/search`, termName),
+        fetchAllPaginatedData(`${API_BASE_URL}/terminologies/unani/search`, termName),
+        fetchAllPaginatedData(`${API_BASE_URL}/terminologies/siddha/search`, termName),
+        fetchAllPaginatedData(`${API_BASE_URL}/terminologies/icd11/search`, termName),
         fetchData(`${API_BASE_URL}/terminologies/mappings/?system=ayurveda&q=${encodeURIComponent(termName)}&min_confidence=0.1`)
       ]);
 
@@ -125,11 +282,14 @@ const MappingDetailsPage = () => {
       );
     }
 
+    const currentData = getCurrentPageData(systemData);
+    const totalPages = getTotalPages(systemData);
+
     return (
       <div className="system-results">
         <div className="results-summary">
           <h4>Found {systemData.count} results in {systemName}</h4>
-          {systemData.next && <p>Showing first 20 results</p>}
+          <p>Showing {Math.min(itemsPerPage, currentData.length)} of {systemData.results.length} results (Page {currentPage} of {totalPages})</p>
         </div>
         
         <div className="results-table-container">
@@ -150,7 +310,7 @@ const MappingDetailsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {systemData.results.slice(0, 20).map((result, index) => (
+              {currentData.map((result, index) => (
                 <motion.tr 
                   key={result.id || index}
                   initial={{ opacity: 0 }}
@@ -196,18 +356,14 @@ const MappingDetailsPage = () => {
               ))}
             </tbody>
           </table>
-          {systemData.count > 20 && (
-            <div className="pagination-info">
-              Showing first 20 of {systemData.count} results
-            </div>
-          )}
+          {renderPagination(systemData)}
         </div>
       </div>
     );
   };
 
   const renderMappings = () => {
-    if (!allData?.mapping) {
+    if (!allData?.mapping?.results?.length) {
       return (
         <div className="no-results">
           <p>No mapping data available.</p>
@@ -215,132 +371,109 @@ const MappingDetailsPage = () => {
       );
     }
 
-    const { results, fuzzy_matches_without_mappings } = allData.mapping;
+    const currentMappings = getCurrentPageData(allData.mapping);
 
     return (
       <div className="mappings-section">
-        {results && results.length > 0 ? (
-          <div className="mapping-results">
-            <h3>Direct Mappings</h3>
-            {results.map((mapping, index) => (
-              <div key={index} className="mapping-card detailed">
-                <div className="mapping-header">
-                  <h4>Mapping #{index + 1}</h4>
+        <div className="mapping-results">
+          <h3>Mappings and Similar Terms</h3>
+          {currentMappings.map((mapping, index) => (
+            <div key={index} className="mapping-card detailed">
+              <div className="mapping-header">
+                <h4>Result #{index + 1 + ((currentPage - 1) * itemsPerPage)}</h4>
+                {mapping.confidence_score && (
                   <span className="confidence-badge">
                     Confidence: {(mapping.confidence_score * 100).toFixed(1)}%
                   </span>
+                )}
+                {mapping.similarity && (
+                  <span className="similarity-badge">
+                    Similarity: {(mapping.similarity * 100).toFixed(1)}%
+                  </span>
+                )}
+              </div>
+              
+              <div className="mapping-details-grid">
+                {/* Source Term */}
+                <div className="mapping-source">
+                  <h5>Source Term</h5>
+                  <div className="term-details">
+                    <p><strong>Code:</strong> {mapping.code || mapping.source_term?.code || 'N/A'}</p>
+                    <p><strong>Name:</strong> {mapping.english_name || mapping.source_term?.english_name || mapping.title || 'N/A'}</p>
+                    {mapping.source_term?.hindi_name && (
+                      <p><strong>Hindi Name:</strong> {mapping.source_term.hindi_name}</p>
+                    )}
+                  </div>
                 </div>
-                
-                <div className="mapping-details-grid">
-                  <div className="mapping-source">
-                    <h5>Source Term ({searchParams?.system || 'Ayurveda'})</h5>
+
+                {/* Ayurveda Mapping */}
+                {mapping.namaste_terms?.ayurveda && (
+                  <div className="mapping-target">
+                    <h5>Ayurveda Mapping</h5>
                     <div className="term-details">
-                      <p><strong>Code:</strong> {mapping.source_term.code}</p>
-                      <p><strong>Name:</strong> {mapping.source_term.english_name}</p>
-                      {mapping.source_term.hindi_name && (
-                        <p><strong>Hindi Name:</strong> {mapping.source_term.hindi_name}</p>
+                      <p><strong>Code:</strong> {mapping.namaste_terms.ayurveda.code}</p>
+                      <p><strong>Name:</strong> {mapping.namaste_terms.ayurveda.english_name}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Siddha Mapping */}
+                {mapping.namaste_terms?.siddha && (
+                  <div className="mapping-target">
+                    <h5>Siddha Mapping</h5>
+                    <div className="term-details">
+                      <p><strong>Code:</strong> {mapping.namaste_terms.siddha.code}</p>
+                      <p><strong>Name:</strong> {mapping.namaste_terms.siddha.english_name}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Unani Mapping */}
+                {mapping.namaste_terms?.unani && (
+                  <div className="mapping-target">
+                    <h5>Unani Mapping</h5>
+                    <div className="term-details">
+                      <p><strong>Code:</strong> {mapping.namaste_terms.unani.code}</p>
+                      <p><strong>Name:</strong> {mapping.namaste_terms.unani.english_name}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ICD-11 Mapping */}
+                {mapping.icd_mapping && (
+                  <div className="mapping-target">
+                    <h5>ICD-11 Mapping</h5>
+                    <div className="term-details">
+                      <p><strong>Code:</strong> {mapping.icd_mapping.code}</p>
+                      <p><strong>Title:</strong> {mapping.icd_mapping.title}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Fuzzy Match Info */}
+                {mapping.message && (
+                  <div className="mapping-info">
+                    <h5>Status</h5>
+                    <div className="term-details">
+                      <p><strong>Message:</strong> {mapping.message}</p>
+                      {mapping.similarity && (
+                        <p><strong>Similarity:</strong> {(mapping.similarity * 100).toFixed(1)}%</p>
                       )}
                     </div>
                   </div>
-
-                  {mapping.namaste_terms.ayurveda && (
-                    <div className="mapping-target">
-                      <h5>Ayurveda Mapping</h5>
-                      <div className="term-details">
-                        <p><strong>Code:</strong> {mapping.namaste_terms.ayurveda.code}</p>
-                        <p><strong>Name:</strong> {mapping.namaste_terms.ayurveda.english_name}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {mapping.namaste_terms.siddha && (
-                    <div className="mapping-target">
-                      <h5>Siddha Mapping</h5>
-                      <div className="term-details">
-                        <p><strong>Code:</strong> {mapping.namaste_terms.siddha.code}</p>
-                        <p><strong>Name:</strong> {mapping.namaste_terms.siddha.english_name}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {mapping.namaste_terms.unani && (
-                    <div className="mapping-target">
-                      <h5>Unani Mapping</h5>
-                      <div className="term-details">
-                        <p><strong>Code:</strong> {mapping.namaste_terms.unani.code}</p>
-                        <p><strong>Name:</strong> {mapping.namaste_terms.unani.english_name}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {mapping.icd_mapping && (
-                    <div className="mapping-target">
-                      <h5>ICD-11 Mapping</h5>
-                      <div className="term-details">
-                        <p><strong>Code:</strong> {mapping.icd_mapping.code}</p>
-                        <p><strong>Title:</strong> {mapping.icd_mapping.title}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <button 
-                  className="view-full-details-btn"
-                  onClick={() => handleResultClick(mapping, 'Mapping', 'mapping')}
-                >
-                  View Full Details
-                </button>
+                )}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="no-direct-mappings">
-            <p>No direct mappings found for "{searchTerm}".</p>
-          </div>
-        )}
-
-        {fuzzy_matches_without_mappings && fuzzy_matches_without_mappings.length > 0 && (
-          <div className="fuzzy-matches">
-            <h3>Similar Terms (No Mappings Available)</h3>
-            <div className="fuzzy-table-container">
-              <table className="fuzzy-table">
-                <thead>
-                  <tr>
-                    <th>Code</th>
-                    <th>Term Name</th>
-                    <th>Similarity</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fuzzy_matches_without_mappings.map((match, index) => (
-                    <motion.tr 
-                      key={index}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="fuzzy-row"
-                    >
-                      <td>{match.code}</td>
-                      <td>{match.english_name}</td>
-                      <td>{(match.similarity * 100).toFixed(1)}%</td>
-                      <td>{match.message}</td>
-                      <td>
-                        <button 
-                          className="view-term-btn"
-                          onClick={() => handleResultClick(match, 'Fuzzy Match', 'fuzzy')}
-                        >
-                          View Term
-                        </button>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+              
+              <button 
+                className="view-full-details-btn"
+                onClick={() => handleResultClick(mapping, 'Mapping', 'mapping')}
+              >
+                View Full Details
+              </button>
             </div>
-          </div>
-        )}
+          ))}
+          {renderPagination(allData.mapping)}
+        </div>
       </div>
     );
   };
@@ -386,6 +519,11 @@ const MappingDetailsPage = () => {
               {result.confidence_score && (
                 <span className="confidence-tag">
                   {(result.confidence_score * 100).toFixed(1)}% Confidence
+                </span>
+              )}
+              {result.similarity && (
+                <span className="similarity-tag">
+                  {(result.similarity * 100).toFixed(1)}% Similarity
                 </span>
               )}
             </div>
@@ -549,29 +687,6 @@ const MappingDetailsPage = () => {
               </div>
             </div>
           )}
-
-          {/* Search Information */}
-          {/* <div className="detail-section">
-            <h4>Search Information</h4>
-            <div className="search-info-grid">
-              <div className="detail-item">
-                <label>ORIGINAL SEARCH TERM</label>
-                <span>{searchTerm}</span>
-              </div>
-              <div className="detail-item">
-                <label>SELECTED TERM</label>
-                <span>{termName}</span>
-              </div>
-              <div className="detail-item">
-                <label>DATA SOURCE</label>
-                <span>{result.system}</span>
-              </div>
-              <div className="detail-item">
-                <label>SEARCH TIMESTAMP</label>
-                <span>{new Date().toLocaleString()}</span>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     );
@@ -609,7 +724,6 @@ const MappingDetailsPage = () => {
       <div className="container">
         <header className="page-header">
           <button onClick={() => navigate(-1)} className="back-btn">← Back to Results</button>
-         
         </header>
 
         <motion.div
@@ -618,7 +732,7 @@ const MappingDetailsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1>{searchTerm}</h1>
+          <h1 className="page-title">{searchTerm}</h1>
           <p className="search-context">Comprehensive medical terminology search results across all systems</p>
         </motion.div>
 
@@ -644,9 +758,7 @@ const MappingDetailsPage = () => {
                   { name: 'Unani', data: allData?.unani, color: '#FF9800', count: allData?.unani?.count || 0 },
                   { name: 'Siddha', data: allData?.siddha, color: '#9C27B0', count: allData?.siddha?.count || 0 },
                   { name: 'ICD-11', data: allData?.icd11, color: '#2196F3', count: allData?.icd11?.count || 0 },
-                  { name: 'Mappings', data: allData?.mapping, color: '#1e88e5', 
-                    count: (allData?.mapping?.results?.length || 0) + (allData?.mapping?.fuzzy_matches_without_mappings?.length || 0) 
-                  }
+                  { name: 'Mappings', data: allData?.mapping, color: '#1e88e5', count: allData?.mapping?.count || 0 }
                 ].map((system) => (
                   <div key={system.name} className="overview-card" onClick={() => setActiveTab(system.name.toLowerCase())}>
                     <div className="card-icon" style={{ backgroundColor: system.color }}>

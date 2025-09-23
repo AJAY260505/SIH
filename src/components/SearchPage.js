@@ -223,34 +223,6 @@ const SearchPage = () => {
     performSearch({ term: suggestion.name, system: selectedSystem, confidence: minConfidence });
   };
 
-  const handleSystemCardClick = async (system) => {
-    if (!searchTerm.trim()) {
-      navigate(`/${system}`, { state: { system, searchTerm: '' } });
-      return;
-    }
-    
-    setIsSearching(true);
-    try {
-      const systemData = await fetchData(
-        `${API_BASE_URL}/terminologies/${system}/search/?q=${encodeURIComponent(searchTerm)}`
-      );
-
-      if (systemData) {
-        navigate(`/${system}`, { 
-          state: { system, searchTerm, results: systemData }
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching system data:", error);
-      navigate(`/${system}`, { 
-        state: { system, searchTerm, error: error.message }
-      });
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  // Function to navigate to individual system pages
   const navigateToSystemPage = (systemId) => {
     navigate(`/${systemId}`, {
       state: { system: systemId, searchTerm: searchTerm || '' }
@@ -266,130 +238,33 @@ const SearchPage = () => {
       return true;
     }) : [];
 
-  // Inline styles for the system cards
-  const systemCardStyle = {
-    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95))',
-    padding: '2rem 1.5rem',
-    borderRadius: '16px',
-    textAlign: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.4s ease',
-    border: '1px solid #e2e8f0',
-    position: 'relative',
-    overflow: 'hidden',
-    minHeight: '280px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-  };
-
-  const systemCardDarkStyle = {
-    ...systemCardStyle,
-    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95))',
-    border: '1px solid #334155',
-    color: '#f1f5f9'
-  };
-
-  const systemIconStyle = {
-    width: '80px',
-    height: '80px',
-    marginBottom: '1rem',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-    boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.2)',
-    overflow: 'hidden'
-  };
-
-  const systemImageStyle = {
-    width: '60px',
-    height: '60px',
-    objectFit: 'cover',
-    borderRadius: '8px'
-  };
-
-  const systemTitleStyle = {
-    fontSize: '1.5rem',
-    fontWeight: '600',
-    marginBottom: '0.5rem',
-    background: 'linear-gradient(135deg, #1e293b, #475569)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text'
-  };
-
-  const systemTitleDarkStyle = {
-    ...systemTitleStyle,
-    background: 'linear-gradient(135deg, #f1f5f9, #cbd5e1)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text'
-  };
-
-  const systemDescStyle = {
-    color: '#64748b',
-    marginBottom: '1rem',
-    lineHeight: '1.5',
-    fontSize: '0.95rem'
-  };
-
-  const systemDescDarkStyle = {
-    ...systemDescStyle,
-    color: '#94a3b8'
-  };
-
-  const systemActionStyle = {
-    color: '#3b82f6',
-    fontWeight: '600',
-    fontSize: '0.9rem',
-    marginTop: 'auto',
-    transition: 'all 0.3s ease'
-  };
-
-  const systemActionDarkStyle = {
-    ...systemActionStyle,
-    color: '#60a5fa'
-  };
-
-  const systemGridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '2rem',
-    marginTop: '2rem'
-  };
-
-  // System cards data with image paths
-  const systemCards = [
-    { 
-      id: 'ayurveda', 
-      name: 'Ayurveda', 
-      desc: 'Ancient Indian system of natural healing with holistic approach to health and wellness', 
-      image: '/img1.png' 
-    },
-    { 
-      id: 'siddha', 
-      name: 'Siddha', 
-      desc: 'Traditional Tamil system of medicine emphasizing spiritual enlightenment and longevity', 
-      image: '/img2.png' 
-    },
-    { 
-      id: 'unani', 
-      name: 'Unani', 
-      desc: 'Greco-Arabic system of medicine based on the concept of four humors and temperament', 
-      image: '/img3.png' 
-    },
-    { 
-      id: 'icd11', 
-      name: 'ICD-11', 
-      desc: 'International Classification of Diseases - global standard for health reporting and statistics', 
-      image: '/img4.png' 
-    }
-  ];
-
+  // System cards data
+const systemCards = [
+  { 
+    id: 'ayurveda', 
+    name: 'Ayurveda', 
+    desc: 'Ancient Indian system of natural healing with holistic approach to health and wellness', 
+    image: '/img5.png'
+  },
+  { 
+    id: 'siddha', 
+    name: 'Siddha', 
+    desc: 'Traditional Tamil system of medicine emphasizing spiritual enlightenment and longevity', 
+    image: '/img1.png'
+  },
+  { 
+    id: 'unani', 
+    name: 'Unani', 
+    desc: 'Greco-Arabic system of medicine based on the concept of four humors and temperament', 
+    image: '/img3.png'
+  },
+  { 
+    id: 'icd11', 
+    name: 'ICD-11', 
+    desc: 'International Classification of Diseases - global standard for health reporting and statistics', 
+    image: '/img4.png'
+  }
+];
   return (
     <div className="search-page">
       <div className="container">
@@ -435,7 +310,6 @@ const SearchPage = () => {
                 required
               />
               
-              {/* Combined Suggestions and Recommendations Dropdown */}
               {showSuggestions && (suggestions.length > 0 || recommendations.length > 0) && (
                 <div className="suggestions-dropdown">
                   {suggestions.length > 0 ? (
@@ -449,9 +323,9 @@ const SearchPage = () => {
                           <span className="suggestion-text">{suggestion.name}</span>
                           <span className="suggestion-type">{suggestion.type === 'mapped' ? 'Mapped' : 'Similar'}</span>
                         </div>
-                        <span className="suggestion-confidence">
+                        {/* <span className="suggestion-confidence">
                           {Math.round(suggestion.confidence * 100)}%
-                        </span>
+                        </span> */}
                       </div>
                     ))
                   ) : recommendations.length > 0 ? (
@@ -467,9 +341,9 @@ const SearchPage = () => {
                             <span className="suggestion-text">{recommendation.name}</span>
                             <span className="suggestion-type">Recommended</span>
                           </div>
-                          <span className="suggestion-confidence">
+                          {/* <span className="suggestion-confidence">
                             {Math.round(recommendation.confidence * 100)}%
-                          </span>
+                          </span> */}
                         </div>
                       ))}
                     </div>
@@ -509,6 +383,22 @@ const SearchPage = () => {
                 ))}
               </div>
             </div>
+
+            {/* <div className="filter-group">
+              <label className="filter-label">Confidence Level</label>
+              <div className="slider-container">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={minConfidence}
+                  onChange={(e) => setMinConfidence(parseFloat(e.target.value))}
+                  className="confidence-slider"
+                />
+                <span className="slider-value">{(minConfidence * 100).toFixed(0)}%</span>
+              </div>
+            </div> */}
           </div>
         </motion.form>
 
@@ -692,54 +582,30 @@ const SearchPage = () => {
           viewport={{ once: true }}
         >
           <h3 className="section-title">Quick Access</h3>
-          <div style={systemGridStyle}>
-            {systemCards.map((system) => (
-              <motion.div 
-                key={system.id}
-                style={theme === 'dark' ? systemCardDarkStyle : systemCardStyle}
-                whileHover={{ y: -5, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => navigateToSystemPage(system.id)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
-                  e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-                }}
-              >
-                <div style={systemIconStyle}>
-                  <img 
-                    src={system.image} 
-                    alt={system.name}
-                    style={systemImageStyle}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                  <div style={{
-                    display: 'none',
-                    fontSize: '2rem',
-                    width: '100%',
-                    height: '100%',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    {system.id === 'ayurveda' ? '🌿' : 
-                     system.id === 'siddha' ? '⚕️' : 
-                     system.id === 'unani' ? '📜' : '🏥'}
-                  </div>
-                </div>
-                <h4 style={theme === 'dark' ? systemTitleDarkStyle : systemTitleStyle}>{system.name}</h4>
-                <p style={theme === 'dark' ? systemDescDarkStyle : systemDescStyle}>{system.desc}</p>
-                <div style={theme === 'dark' ? systemActionDarkStyle : systemActionStyle}>
-                  Explore {system.name} →
-                </div>
-              </motion.div>
-            ))}
-          </div>
+    <div className="system-cards-grid">
+  {systemCards.map((system) => (
+    <motion.div 
+      key={system.id}
+      className="system-card"
+      whileHover={{ y: -5, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={() => navigateToSystemPage(system.id)}
+    >
+      <div className="system-icon">
+        <img 
+          src={system.image} 
+          alt={system.name} 
+          className="system-img"
+        />
+      </div>
+      <h4 className="system-name">{system.name}</h4>
+      <p className="system-desc">{system.desc}</p>
+      <div className="system-action">
+        Explore {system.name} →
+      </div>
+    </motion.div>
+  ))}
+</div>
         </motion.div>
       </div>
     </div>

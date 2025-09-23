@@ -11,7 +11,7 @@ const Footer = () => {
       transition={{ duration: 0.8 }}
       viewport={{ once: true }}
     >
-      <div className="container">
+      <div className="containers">
         <div className="footer-content">
           <div className="footer-section">
             <h3>ICD-TM2 Platform</h3>
