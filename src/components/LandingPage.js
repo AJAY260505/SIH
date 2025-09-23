@@ -12,7 +12,7 @@ const LandingPage = () => {
       <HeroSection />
       
       <div className="intro-section">
-        <div className="container">
+        <div className="containers">
           <motion.p 
             className="intro-text"
             initial={{ opacity: 0, y: 20 }}

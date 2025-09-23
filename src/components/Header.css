@@ -31,7 +31,7 @@
   align-items: center;
   gap: 0.5rem;
   font-style: italic;
-  color: #1e88e5;
+  color: red;
   text-decoration: none;
   transition: color 0.3s ease, transform 0.2s ease;
 }

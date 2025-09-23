@@ -105,7 +105,7 @@ const SystemPage = ({ systemName }) => {
 
   return (
     <div className="system-page">
-      <div className="container">
+      <div className="containers">
         <motion.div 
           className="system-header"
           initial={{ opacity: 0, y: 20 }}

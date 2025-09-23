@@ -24,7 +24,6 @@ const Header = ({ theme, toggleTheme, user, handleSignIn, handleSignOut }) => {
         display: 'flex',
         alignItems: 'center',
         gap: '0.5rem',
-        fontStyle: 'italic',
         fontSize: '1.9rem',
         fontWeight: '800',
         color: '#1e88e5',
@@ -40,7 +39,7 @@ const Header = ({ theme, toggleTheme, user, handleSignIn, handleSignOut }) => {
           objectFit: 'contain'
         }}
       />
-      <span>AYUSH BANDHAN</span>
+      <span>Ayush Bandhan</span>
     </Link>
 
     {/* Right: Navigation & Buttons */}
