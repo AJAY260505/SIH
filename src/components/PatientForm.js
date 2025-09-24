@@ -5,7 +5,6 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import './PatientForm.css';
 
-
 const PatientForm = () => {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -36,9 +35,164 @@ const PatientForm = () => {
     insuranceContact: ''
   });
 
+  const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+
+  // Validation functions
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'fullName':
+        if (!value.trim()) return 'Full name is required';
+        if (value.length < 4) return 'Name must be at least 4 characters';
+        if (value.length > 50) return 'Name must be less than 50 characters';
+        if (!/^[a-zA-Z\s'-]+$/.test(value)) return 'Name can only contain letters, spaces, hyphens, and apostrophes';
+        return '';
+      
+      case 'gender':
+        if (!value) return 'Gender is required';
+        return '';
+      
+      case 'dob':
+        if (!value) return 'Date of birth is required';
+        const birthDate = new Date(value);
+        const today = new Date();
+        if (birthDate > today) return 'Date of birth cannot be in the future';
+        const age = today.getFullYear() - birthDate.getFullYear();
+        if (age > 140) return 'Age cannot be more than 140 years';
+        return '';
+      
+      case 'age':
+        if (value && (isNaN(value) || value < 0 || value > 140)) return 'Age must be between 0 and 140';
+        return '';
+      
+      case 'nationalId':
+        if (value && !/^\d{12}$/.test(value)) return 'Aadhar must be 12 digits';
+        return '';
+      
+      case 'phone':
+        if (!value) return 'Phone number is required';
+        if (!/^[6-9]\d{9}$/.test(value)) return 'Invalid Indian phone number';
+        return '';
+      
+      case 'email':
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Invalid email address';
+        return '';
+      
+      case 'address':
+        if (!value.trim()) return 'Address is required';
+        if (value.length < 5) return 'Address must be at least 5 characters';
+        if (value.length > 200) return 'Address must be less than 200 characters';
+        return '';
+      
+      case 'city':
+        if (!value.trim()) return 'City is required';
+        if (value.length < 2) return 'City must be at least 2 characters';
+        if (value.length > 30) return 'City must be less than 30 characters';
+        if (!/^[a-zA-Z\s'-]+$/.test(value)) return 'City can only contain letters, spaces, hyphens, and apostrophes';
+        return '';
+      
+      case 'state':
+        if (!value.trim()) return 'State is required';
+        if (value.length < 2) return 'State must be at least 2 characters';
+        if (value.length > 30) return 'State must be less than 30 characters';
+        if (!/^[a-zA-Z\s'-]+$/.test(value)) return 'State can only contain letters, spaces, hyphens, and apostrophes';
+        return '';
+      
+      case 'zip':
+        if (!value) return 'ZIP code is required';
+        if (!/^\d{6}$/.test(value)) return 'Invalid Indian ZIP code (6 digits)';
+        return '';
+      
+      case 'country':
+        if (!value.trim()) return 'Country is required';
+        if (value.length < 2) return 'Country must be at least 2 characters';
+        if (value.length > 50) return 'Country must be less than 50 characters';
+        if (!/^[a-zA-Z\s'-]+$/.test(value)) return 'Country can only contain letters, spaces, hyphens, and apostrophes';
+        return '';
+      
+      case 'emergencyName':
+        if (!value.trim()) return 'Emergency contact name is required';
+        if (value.length < 4) return 'Name must be at least 4 characters';
+        if (value.length > 50) return 'Name must be less than 50 characters';
+        if (!/^[a-zA-Z\s'-]+$/.test(value)) return 'Name can only contain letters, spaces, hyphens, and apostrophes';
+        return '';
+      
+      case 'emergencyRelationship':
+        if (!value.trim()) return 'Relationship is required';
+        if (value.length < 2) return 'Relationship must be at least 2 characters';
+        if (value.length > 30) return 'Relationship must be less than 30 characters';
+        return '';
+      
+      case 'emergencyPhone':
+        if (!value) return 'Emergency phone number is required';
+        if (!/^[6-9]\d{9}$/.test(value)) return 'Invalid Indian phone number';
+        return '';
+      
+      default:
+        return '';
+    }
+  };
+
+  const validateStep = (step) => {
+    const newErrors = {};
+    let hasError = false;
+    
+    switch (step) {
+      case 1:
+        ['fullName', 'gender', 'dob'].forEach(field => {
+          const error = validateField(field, formData[field]);
+          if (error) {
+            newErrors[field] = error;
+            hasError = true;
+          }
+        });
+        break;
+        
+      case 2:
+        ['phone', 'address', 'city', 'state', 'zip', 'country'].forEach(field => {
+          const error = validateField(field, formData[field]);
+          if (error) {
+            newErrors[field] = error;
+            hasError = true;
+          }
+        });
+        // Validate email separately since it's optional
+        if (formData.email) {
+          const emailError = validateField('email', formData.email);
+          if (emailError) {
+            newErrors.email = emailError;
+            hasError = true;
+          }
+        }
+        break;
+        
+      case 3:
+        // Medical fields are optional, no validation needed
+        break;
+        
+      case 4:
+        ['emergencyName', 'emergencyRelationship', 'emergencyPhone'].forEach(field => {
+          const error = validateField(field, formData[field]);
+          if (error) {
+            newErrors[field] = error;
+            hasError = true;
+          }
+        });
+        break;
+        
+      case 5:
+        // Insurance fields are optional, no validation needed
+        break;
+        
+      default:
+        break;
+    }
+    
+    setErrors(newErrors);
+    return !hasError;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -46,6 +200,15 @@ const PatientForm = () => {
       ...prev,
       [name]: value
     }));
+
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
 
     if (name === 'dob' && value) {
       const birthDate = new Date(value);
@@ -62,11 +225,18 @@ const PatientForm = () => {
     }
   };
 
-  const nextStep = () => setCurrentStep(prev => prev + 1);
+  const nextStep = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
   const prevStep = () => setCurrentStep(prev => prev - 1);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateStep(5)) return;
+    
     setIsSubmitting(true);
     try {
       const user = auth.currentUser;
@@ -151,7 +321,7 @@ const PatientForm = () => {
 
   return (
     <div className="patient-form-page">
-          <div className="container">
+      <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -188,6 +358,7 @@ const PatientForm = () => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errors.fullName && <span className="error-text">{errors.fullName}</span>}
                 </div>
                 <div className="form-group">
                   <label>Gender *</label>
@@ -203,6 +374,7 @@ const PatientForm = () => {
                     <option value="other">Other</option>
                     <option value="prefer-not-to-say">Prefer not to say</option>
                   </select>
+                  {errors.gender && <span className="error-text">{errors.gender}</span>}
                 </div>
                 <div className="form-group">
                   <label>Date of Birth *</label>
@@ -213,6 +385,7 @@ const PatientForm = () => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errors.dob && <span className="error-text">{errors.dob}</span>}
                 </div>
                 <div className="form-group">
                   <label>Age</label>
@@ -223,15 +396,18 @@ const PatientForm = () => {
                     onChange={handleInputChange}
                     readOnly
                   />
+                  {errors.age && <span className="error-text">{errors.age}</span>}
                 </div>
                 <div className="form-group full-width">
-                  <label>National ID / Passport No</label>
+                  <label>Aadhar No</label>
                   <input
                     type="text"
                     name="nationalId"
                     value={formData.nationalId}
                     onChange={handleInputChange}
+                    placeholder="12-digit Aadhar number"
                   />
+                  {errors.nationalId && <span className="error-text">{errors.nationalId}</span>}
                 </div>
               </div>
               <div className="form-navigation">
@@ -260,7 +436,9 @@ const PatientForm = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     required
+                    placeholder="10-digit mobile number"
                   />
+                  {errors.phone && <span className="error-text">{errors.phone}</span>}
                 </div>
                 <div className="form-group">
                   <label>Email Address</label>
@@ -269,7 +447,9 @@ const PatientForm = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    placeholder="example@domain.com"
                   />
+                  {errors.email && <span className="error-text">{errors.email}</span>}
                 </div>
                 <div className="form-group full-width">
                   <label>Address *</label>
@@ -280,6 +460,7 @@ const PatientForm = () => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errors.address && <span className="error-text">{errors.address}</span>}
                 </div>
                 <div className="form-group">
                   <label>City *</label>
@@ -290,6 +471,7 @@ const PatientForm = () => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errors.city && <span className="error-text">{errors.city}</span>}
                 </div>
                 <div className="form-group">
                   <label>State *</label>
@@ -300,6 +482,7 @@ const PatientForm = () => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errors.state && <span className="error-text">{errors.state}</span>}
                 </div>
                 <div className="form-group">
                   <label>ZIP Code *</label>
@@ -309,7 +492,9 @@ const PatientForm = () => {
                     value={formData.zip}
                     onChange={handleInputChange}
                     required
+                    placeholder="6-digit PIN code"
                   />
+                  {errors.zip && <span className="error-text">{errors.zip}</span>}
                 </div>
                 <div className="form-group">
                   <label>Country *</label>
@@ -320,6 +505,7 @@ const PatientForm = () => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errors.country && <span className="error-text">{errors.country}</span>}
                 </div>
               </div>
               <div className="form-navigation">
@@ -452,17 +638,19 @@ const PatientForm = () => {
                     onChange={handleInputChange}
                     required
                   />
+                  {errors.emergencyName && <span className="error-text">{errors.emergencyName}</span>}
                 </div>
                 <div className="form-group">
                   <label>Relationship *</label>
                   <input
                     type="text"
-                    name="emergenceRelationship"
-                    value={formData.emergenceRelationship}
+                    name="emergencyRelationship"
+                    value={formData.emergencyRelationship}
                     onChange={handleInputChange}
                     required
                     placeholder="e.g., Spouse, Parent, Sibling"
                   />
+                  {errors.emergencyRelationship && <span className="error-text">{errors.emergencyRelationship}</span>}
                 </div>
                 <div className="form-group">
                   <label>Contact Number *</label>
@@ -472,7 +660,9 @@ const PatientForm = () => {
                     value={formData.emergencyPhone}
                     onChange={handleInputChange}
                     required
+                    placeholder="10-digit mobile number"
                   />
+                  {errors.emergencyPhone && <span className="error-text">{errors.emergencyPhone}</span>}
                 </div>
               </div>
               <div className="form-navigation">

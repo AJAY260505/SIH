@@ -10,25 +10,6 @@ const HeroSection = () => {
     triggerOnce: false
   });
 
-  const [ripples, setRipples] = useState([]);
-
-  const createRipple = (e) => {
-    const button = e.currentTarget;
-    const diameter = Math.max(button.clientWidth, button.clientHeight);
-    const radius = diameter / 2;
-
-    const rect = button.getBoundingClientRect();
-    const x = e.clientX - rect.left - radius;
-    const y = e.clientY - rect.top - radius;
-
-    const newRipple = { x, y, size: diameter, key: Date.now() };
-    setRipples((prev) => [...prev, newRipple]);
-
-    setTimeout(() => {
-      setRipples((prev) => prev.filter((r) => r.key !== newRipple.key));
-    }, 600);
-  };
-
   return (
     <section className="hero" ref={ref}>
       <div className="hero-image hero-image-left">
@@ -62,21 +43,19 @@ const HeroSection = () => {
           animate={inView ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <Link to="/search" className="cta-button" onClick={createRipple}>
-            Get Started
-            {ripples.map((r) => (
-              <span
-                className="ripple"
-                key={r.key}
-                style={{
-                  width: r.size,
-                  height: r.size,
-                  left: r.x,
-                  top: r.y
-                }}
-              />
-            ))}
-          </Link>
+          <div className="buttons">
+            <Link to="/search" className="blob-btn">
+              Get Started
+              <span className="blob-btn__inner">
+                <span className="blob-btn__blobs">
+                  <span className="blob-btn__blob"></span>
+                  <span className="blob-btn__blob"></span>
+                  <span className="blob-btn__blob"></span>
+                  <span className="blob-btn__blob"></span>
+                </span>
+              </span>
+            </Link>
+          </div>
         </motion.div>
       </div>
 
@@ -169,6 +148,16 @@ const HeroSection = () => {
           transition={{ duration: 0.8 }}
         />
       </div>
+
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1" className="goo-filter">
+        <defs>
+          <filter id="goo">
+            <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10"></feGaussianBlur>
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 21 -7" result="goo"></feColorMatrix>
+            <feBlend in2="goo" in="SourceGraphic" result="mix"></feBlend>
+          </filter>
+        </defs>
+      </svg>
     </section>
   );
 };

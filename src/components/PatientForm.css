@@ -23,6 +23,10 @@
   background-color: var(--border-color);
   transform: translateY(-50%);
   z-index: 1;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
 }
 
 .step-indicator span {

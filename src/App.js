@@ -10,14 +10,10 @@ import {
   signInWithPopup, 
   signOut 
 } from 'firebase/auth';
-import { 
-  getDoc, 
-  doc, 
-  setDoc, 
-  serverTimestamp 
-} from 'firebase/firestore';
-import { auth, db } from './firebase/config'; // Ensure your firebase config exports both auth and db
+import { getDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from './firebase/config';
 
+// Components
 import Header from './components/Header';
 import AuthModal from './components/AuthModal';
 import ProfilePage from './components/ProfilePage';
@@ -26,28 +22,12 @@ import DoctorDashboard from './components/DoctorDashboard';
 import LandingPage from './components/LandingPage';
 import SearchPage from './components/SearchPage';
 import SystemPage from './components/SystemPage';
-import DetailedViewPage from './components/DetailedViewPage'; // New detailed view page
+import DetailedViewPage from './components/DetailedViewPage';
 import MappingDetailsPage from './components/MappingDetailsPage';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop'; // ✅ import
+
 import './styles/App.css';
-
-// Animation variants
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-};
-
-const staggerChildren = {
-  visible: { transition: { staggerChildren: 0.1 } }
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } }
-};
-
-// API base URL
-const API_BASE_URL = "http://localhost:8000";
 
 function App() {
   const [theme, setTheme] = useState('light');
@@ -57,12 +37,9 @@ function App() {
   const [authMode, setAuthMode] = useState('login');
 
   useEffect(() => {
-    // Set initial theme based on system preference
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme('dark');
     }
-    
-    // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (user) {
@@ -71,7 +48,6 @@ function App() {
         setUserProfile(null);
       }
     });
-    
     return unsubscribe;
   }, []);
 
@@ -86,9 +62,7 @@ function App() {
     }
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
   const handleSignIn = () => {
     setAuthMode('login');
@@ -131,20 +105,13 @@ function App() {
     }
   };
 
-  const handleSignOut = () => {
-    signOut(auth);
-  };
-
-  const closeAuthModal = () => {
-    setAuthModalOpen(false);
-  };
-
-  const switchAuthMode = (mode) => {
-    setAuthMode(mode);
-  };
+  const handleSignOut = () => signOut(auth);
+  const closeAuthModal = () => setAuthModalOpen(false);
+  const switchAuthMode = (mode) => setAuthMode(mode);
 
   return (
     <Router>
+      <ScrollToTop /> {/* ✅ ensures scroll to top on route change */}
       <div className={`App ${theme}`}>
         <Header 
           theme={theme} 
@@ -161,7 +128,7 @@ function App() {
             <Route path="/siddha" element={<SystemPage systemName="siddha" />} />
             <Route path="/unani" element={<SystemPage systemName="unani" />} />
             <Route path="/icd11" element={<SystemPage systemName="icd11" />} />
-            <Route path="/view-details" element={<DetailedViewPage />} /> {/* New route */}
+            <Route path="/view-details" element={<DetailedViewPage />} />
             <Route path="/details" element={<DetailedViewPage />} />
             <Route path="/mapping-details" element={<MappingDetailsPage />} />
             <Route path="/profile" element={<ProfilePage user={user} />} />

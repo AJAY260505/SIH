@@ -123,3 +123,153 @@
     text-align: center;
   }
 }
+/* Ensure the footer-bottom is a positioned container */
+.footer-bottom {
+  position: relative;       /* important: parent for absolute button */
+  padding: 18px 24px;       /* keep space for button on the right */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: transparent;  /* keep existing bg if any */
+}
+
+/* Scroll-to-top button placed at right-center of footer-bottom */
+/* Footer must be positioned relative */
+.footer {
+  position: relative;
+}
+
+/* Scroll to Top Button inside footer */
+.scroll-to-top {
+  display:flex;
+  justify-content: center;
+  position: absolute;
+  right: 1px;       
+  bottom: 120px;        /* distance from right edge */               /* vertical center of footer */
+  transform: translateY(-50%);
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #0088ff 0%, #006fe6 100%);
+  box-shadow: 0 6px 18px rgba(0, 123, 255, 0.35),
+              inset 0 -6px 12px rgba(255,255,255,0.06);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1),
+              box-shadow 220ms;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* GIF inside the button — fills button and stays circular */
+.scroll-to-top img {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 50%;
+  pointer-events: none; /* click passes to the button */
+  display: block;
+}
+
+/* gentle float (bob) */
+@keyframes floaty {
+  0%   { transform: translateY(-50%) translateY(0); }
+  50%  { transform: translateY(-50%) translateY(-6px); }
+  100% { transform: translateY(-50%) translateY(0); }
+}
+.scroll-to-top {
+  animation: floaty 4.2s ease-in-out infinite;
+}
+
+/* Bubble / expanding wave rings */
+.scroll-to-top::before,
+.scroll-to-top::after {
+  content: "";
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* inner ring (faster) */
+.scroll-to-top::before {
+  border: 2px solid rgba(0, 136, 255, 0.85);
+  animation: rippleInner 1.8s infinite cubic-bezier(.2,.8,.2,1);
+  filter: blur(0.2px);
+}
+
+/* outer ring (slower) */
+.scroll-to-top::after {
+  border: 2px solid rgba(0, 136, 255, 0.55);
+  animation: rippleOuter 2.6s infinite cubic-bezier(.2,.8,.2,1);
+}
+
+/* inner ripple keyframe */
+@keyframes rippleInner {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.95;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* outer ripple keyframe */
+@keyframes rippleOuter {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  85% {
+    transform: translate(-50%, -50%) scale(2.1);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.1);
+    opacity: 0;
+  }
+}
+
+/* hover / active interactions */
+.scroll-to-top:hover {
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 12px 30px rgba(0, 123, 255, 0.45);
+}
+.scroll-to-top:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+/* focus outline for accessibility */
+.scroll-to-top:focus {
+  outline: 3px solid rgba(0, 136, 255, 0.28);
+  outline-offset: 4px;
+}
+
+/* Responsive: reduce size on small screens and nudge inwards */
+@media (max-width: 480px) {
+  .scroll-to-top {
+    width: 48px;
+    height: 48px;
+    right: 12px;
+  }
+  .scroll-to-top img { width: 42px; height: 42px; }
+  .scroll-to-top::before,
+  .scroll-to-top::after { width: 48px; height: 48px; }
+}

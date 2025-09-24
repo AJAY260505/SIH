@@ -1,3 +1,4 @@
+/* HeroSection.css - Updated with blob button styles */
 .hero {
   display: flex;
   flex-direction: column;
@@ -57,78 +58,144 @@
   line-height: 1.6;
 }
 
-.cta-button {
-  font-style: italic;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.2rem 2.8rem;
-  border-radius: 50px;
-  font-size: 1.3rem;
-  font-weight: 800;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  background: linear-gradient(135deg, #1e88e5, #42a5f5, #1976d2);
-  color: #fff;
-  box-shadow: 0 6px 20px rgba(30, 136, 229, 0.4);
+/* Blob Button Styles */
+.buttons {
+  margin-top: 50px;
+  text-align: center;
+  border-radius: 30px;
+}
+
+.blob-btn {
+  --cyan: #1e88e5;
+  --dark: #ffffff;
+  --border-width: 1px;
+  
+  z-index: 1;
   position: relative;
-  overflow: hidden;
-  transition: all 0.4s ease;
-  transform: translateY(0);
+  padding: 20px 46px;
+  margin-bottom: 30px;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-size: 16px;
+  font-weight: bold;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  transition: color 0.5s;
+  cursor: pointer;
+  border-radius: 30px;
+  text-decoration: none;
+  display: inline-block;
+  font-style: italic;
   letter-spacing: 0.5px;
-  animation: pulse 3s infinite ease-in-out;
 }
 
-.cta-button:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 12px 30px rgba(30, 136, 229, 0.6);
-  letter-spacing: 1px;
-  animation: none;
-}
-
-.cta-button:active {
-  transform: scale(0.97);
-  box-shadow: 0 4px 15px rgba(30, 136, 229, 0.4);
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
-}
-
-.cta-button::before {
+.blob-btn:before {
   content: "";
+  z-index: 1;
   position: absolute;
+  left: 0;
   top: 0;
-  left: -100%;
-  width: 60%;
+  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  transform: skewX(-25deg);
-  transition: 0.7s;
+  border: var(--border-width) solid var(--cyan);
+  border-radius: 30px;
 }
 
-.cta-button:hover::before {
-  left: 140%;
-}
-
-.cta-button .ripple {
+.blob-btn:after {
+  content: "";
+  z-index: -2;
   position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  transform: scale(0);
-  animation: ripple 0.6s linear;
+  left: calc(var(--border-width) * 1.5);
+  top: calc(var(--border-width) * 1.5);
+  width: 100%;
+  height: 100%;
+  transition: all 0.3s 0.2s;
+  border-radius: 30px;
 }
 
-@keyframes ripple {
-  to {
-    transform: scale(4);
-    opacity: 0;
+.blob-btn:hover {
+  color: var(--dark);
+}
+
+.blob-btn:hover:after {
+  transition: all 0.3s;
+  left: 0;
+  top: 0;
+}
+
+.blob-btn__inner {
+  z-index: -1;
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+  background: var(--dark);
+}
+
+.blob-btn__blobs {
+  position: relative;
+  display: block;
+  height: 100%;
+  filter: url('#goo');
+}
+
+.blob-btn__blob {
+  position: absolute;
+  top: var(--border-width);
+  width: 25%; /* 100% / 4 blobs */
+  height: 100%;
+  background: var(--cyan);
+  border-radius: 100%;
+  transform: translate3d(0, 150%, 0) scale(1.7);
+  transition: transform 0.45s;
+}
+
+@supports (filter: url('#goo')) {
+  .blob-btn__blob {
+    transform: translate3d(0, 150%, 0) scale(1.4);
   }
 }
 
+.blob-btn__blob:nth-child(1) { left: 0%; transition-delay: 0s; }
+.blob-btn__blob:nth-child(2) { left: 25%; transition-delay: 0.08s; }
+.blob-btn__blob:nth-child(3) { left: 50%; transition-delay: 0.16s; }
+.blob-btn__blob:nth-child(4) { left: 75%; transition-delay: 0.24s; }
+
+.blob-btn:hover .blob-btn__blob {
+  transform: translateZ(0) scale(1.7);
+}
+
+@supports (filter: url('#goo')) {
+  .blob-btn:hover .blob-btn__blob {
+    transform: translateZ(0) scale(1.4);
+  }
+}
+
+/* Dark mode adjustments for blob button */
+.App.dark .blob-btn {
+  --cyan: #42a5f5;
+  --dark: #000000;
+}
+
+.App.dark .blob-btn__inner {
+  background: var(--dark);
+}
+
+/* SVG filter positioning */
+.goo-filter {
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 0;
+  height: 0;
+}
+
+/* Rest of the original styles remain unchanged */
 .hero-visual {
   margin-top: 2.5rem;
   display: flex;
@@ -223,7 +290,6 @@
 
 /* Dark mode */
 
-
 .App.dark .hero-content h1 {
   color: white;
   text-shadow: 0 4px 12px rgba(255,255,255,0.3);
@@ -242,10 +308,6 @@
 .App.dark .medicine-icon {
   background-color: #1a1a1a;
   box-shadow: 0 6px 16px rgba(255,255,255,0.1);
-}
-
-.App.dark .cta-button {
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
 }
 
 .App.dark .hero-image img {
@@ -312,9 +374,9 @@
     gap: 0.5rem;
   }
   
-  .cta-button {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
+  .blob-btn {
+    padding: 16px 36px;
+    font-size: 14px;
   }
   
   .flow-item {
@@ -337,9 +399,9 @@
     font-size: 1rem;
   }
   
-  .cta-button {
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
+  .blob-btn {
+    padding: 14px 28px;
+    font-size: 12px;
   }
   
   .flow-item {

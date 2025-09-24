@@ -351,8 +351,8 @@ const SystemPage = ({ systemName }) => {
     <div className="system-page">
       <div className="containers">
         {/* header */}
-        <motion.div className="system-header" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <motion.div className="system-icon-large" animate={{ rotate: 360 }} transition={{ duration: 2, repeat: 0 }}>
+        <motion.div className="system-header" >
+          <motion.div className="system-icon-large" >
             <img src={system.image} alt={system.title} style={{ width: '120px', height: '120px', objectFit: 'contain', borderRadius: '80px' }} />
           </motion.div>
           <div className="system-info">

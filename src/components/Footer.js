@@ -2,7 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './Footer.css';
+
 const Footer = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <motion.footer 
       className="footer"
@@ -36,6 +41,15 @@ const Footer = () => {
         </div>
         <div className="footer-bottom">
           <p>&copy; 2023 ICD-TM2 API Integration Platform. All rights reserved.</p>
+
+<button
+  className="scroll-to-top"
+  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+  aria-label="Scroll to top"
+>
+  <img src="/above.gif" alt="Scroll to top" />
+</button>
+
         </div>
       </div>
     </motion.footer>
