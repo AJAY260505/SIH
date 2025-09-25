@@ -18,7 +18,7 @@ const Header = ({ theme, toggleTheme, user, handleSignIn, handleSignOut }) => {
         {/* -------  LOGO  ------- */}
         <Link to="/" className="logo-link">
           <img src="/logo.png" alt="Logo" className="logo-img" />
-          <span className="logo-text">Ayush Bandhan</span>
+          <span className="logo-text">Ayush Bhandhan</span>
         </Link>
 
         {/* -------  DESKTOP NAV  ------- */}

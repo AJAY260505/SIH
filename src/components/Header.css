@@ -1,5 +1,5 @@
 /* =====================================================
-   HEADER  (existing styles – untouched)
+   HEADER
 ===================================================== */
 .header {
   background: rgba(255, 255, 255, 0.8);
@@ -16,6 +16,7 @@
   box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6);
 }
 
+/* ---------- HEADER CONTAINER ---------- */
 .header-container {
   display: flex;
   justify-content: space-between;
@@ -24,10 +25,11 @@
   width: 100%;
 }
 
-/* ----------  LOGO  ---------- */
+/* ---------- LOGO ---------- */
 .logo-link {
   display: flex;
   align-items: center;
+  justify-content: center; /* horizontally center */
   gap: 0.5rem;
   font-size: 1.9rem;
   font-weight: 800;
@@ -40,26 +42,29 @@
   object-fit: contain;
 }
 
-/* ----------  DESKTOP NAV  ---------- */
-.desktop-nav { display: flex; }
+/* ---------- DESKTOP NAV ---------- */
+.desktop-nav {
+  display: flex;
+}
 .desktop-nav ul {
   display: flex;
   list-style: none;
   gap: 2rem;
   margin: 0;
   padding: 0;
+  align-items: center;
 }
-
-/* ----------  NAV LINKS  ---------- */
 .nav a {
   color: var(--text-color, #333);
   text-decoration: none;
   font-weight: 500;
+  text-align: center;
   position: relative;
   transition: color 0.3s ease;
 }
-.dark .nav a { color: #f5f5f5; }
-
+.dark .nav a {
+  color: #f5f5f5;
+}
 .nav a::after {
   content: '';
   position: absolute;
@@ -71,10 +76,14 @@
   transition: width 0.3s ease;
   border-radius: 2px;
 }
-.nav a:hover { color: #1e88e5; }
-.nav a:hover::after { width: 100%; }
+.nav a:hover {
+  color: #1e88e5;
+}
+.nav a:hover::after {
+  width: 100%;
+}
 
-/* ----------  BUTTONS  ---------- */
+/* ---------- BUTTONS ---------- */
 .auth-btn,
 .theme-toggle,
 .user-name-btn {
@@ -86,13 +95,14 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  text-decoration: none; /* remove underline */
 }
 
 /* Auth Button */
 .auth-btn {
   background: linear-gradient(135deg, #1e88e5, #42a5f5);
   color: #fff;
-  padding: 0.55rem 1.2rem;
+  padding: 0.7rem 1.2rem;
   font-size: 0.95rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
@@ -104,7 +114,10 @@
   padding: 0.5rem 0.9rem;
   font-size: 1rem;
 }
-.dark .theme-toggle { background: #333; color: #f5f5f5; }
+.dark .theme-toggle {
+  background: #333;
+  color: #f5f5f5;
+}
 
 /* User Button */
 .user-name-btn {
@@ -114,10 +127,10 @@
   font-size: 0.95rem;
   font-weight: 600;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  text-decoration: none;
+  text-decoration: none; /* remove underline */
 }
 
-/* ----------  HAMBURGER  ---------- */
+/* ---------- HAMBURGER ---------- */
 .hamburger {
   display: none;
   background: none;
@@ -127,14 +140,18 @@
   color: #1e88e5;
 }
 
-/* ----------  RESPONSIVE  ---------- */
+/* ---------- RESPONSIVE ---------- */
 @media (max-width: 900px) {
-  .desktop-nav { display: none; }
-  .hamburger  { display: block; }
+  .desktop-nav {
+    display: none;
+  }
+  .hamburger {
+    display: block;
+  }
 }
 
 /* =====================================================
-   DRAWER / SIDEBAR  (new, phone-first styles)
+   DRAWER / SIDEBAR
 ===================================================== */
 .drawer-backdrop {
   position: fixed;
@@ -146,66 +163,76 @@
 
 .sidebar {
   position: fixed;
-  top: 0;
+  top: 50%;
   right: 0;
-  height: 100vh;
+  transform: translateY(-50%);
+  height: auto;
+  min-height: 50vh;
   width: min(300px, 80vw);
   background: var(--drawer-bg, #ffffff);
   color: var(--drawer-text, #222);
   z-index: 1500;
   display: flex;
   flex-direction: column;
-  padding: 1.2rem 1rem 2rem;
+  padding: 2rem 1.5rem;
+  justify-content: center; /* vertically center */
+  align-items: center;     /* horizontally center */
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 .dark.sidebar {
   --drawer-bg: #121212;
   --drawer-text: #f5f5f5;
 }
 
-/* ----------  CLOSE BUTTON  (smaller) ---------- */
+/* ---------- CLOSE BUTTON ---------- */
 .close-btn {
   align-self: flex-end;
+  margin-bottom: 1rem;
   background: none;
   border: none;
-  font-size: 1.4rem;              /*  <-- smaller  */
+  font-size: 1.4rem;
   cursor: pointer;
   color: var(--drawer-text);
-  padding: 0.3rem 0.55rem;
   border-radius: 50%;
   transition: background 0.2s;
 }
-.close-btn:hover { background: rgba(0, 0, 0, 0.08); }
-.dark .close-btn:hover { background: rgba(255, 255, 255, 0.08); }
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+.dark .close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
 
-/* ----------  DRAWER LIST  ---------- */
+/* ---------- DRAWER LIST ---------- */
 .drawer-list {
   list-style: none;
-  margin: 1.2rem 0 0;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 1rem;
+  align-items: center; /* horizontally center links */
 }
 
 .drawer-list li a,
 .drawer-list li button {
   width: 100%;
-  text-align: left;
-  font-size: 1.05rem;
+  max-width: 220px;
+  text-align: center;
+  font-size: 1.1rem;
   padding: 0.85rem 1rem;
   border-radius: 12px;
   display: flex;
+  justify-content: center; /* center text + icon */
   align-items: center;
-  gap: 0.7rem;
-  color: var(--drawer-text);
-  text-decoration: none;
+  gap: 0.5rem;
   background: transparent;
   border: none;
   cursor: pointer;
   transition: background 0.2s;
+  text-decoration: none; /* remove underline */
 }
+
 .drawer-list li a:hover,
 .drawer-list li button:hover {
   background: rgba(30, 136, 229, 0.12);
@@ -215,7 +242,7 @@
   background: rgba(130, 192, 243, 0.12);
 }
 
-/* ----------  AVATAR PILL  ---------- */
+/* ---------- AVATAR PILL ---------- */
 .drawer-avatar {
   background: linear-gradient(135deg, #1e88e5, #42a5f5);
   color: #fff;
@@ -224,8 +251,8 @@
   font-weight: 600;
 }
 
-/* ----------  FULL-WIDTH BUTTONS  ---------- */
+/* ---------- FULL-WIDTH BUTTONS ---------- */
 .drawer-btn {
-  justify-content: flex-start;
+  justify-content: center;
   font-weight: 600;
 }
