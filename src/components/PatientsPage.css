@@ -1,0 +1,218 @@
+/* =====================================================
+   THEME TOKENS
+===================================================== */
+:root,
+[data-theme='light'] {
+  --pp-bg: #ffffff;
+  --pp-text: #000000;
+  --pp-card: #ffffff;
+  --pp-border: rgba(0, 0, 0, 0.08);
+  --pp-primary: #1e88e5;
+  --pp-primary-hover: #1976d2;
+  --pp-muted: #f5f5f5;
+  --pp-badge: #e3f2fd;
+  --pp-badge-text: #0d47a1;
+}
+
+[data-theme='dark'] {
+  --pp-bg: #000000;
+  --pp-text: #ffffff;
+  --pp-card: #121212;
+  --pp-border: rgba(255, 255, 255, 0.08);
+  --pp-primary: #82b1ff;
+  --pp-primary-hover: #448aff;
+  --pp-muted: #1e1e1e;
+  --pp-badge: #0d47a1;
+  --pp-badge-text: #e3f2fd;
+}
+
+/* =====================================================
+   PAGE WRAPPER
+===================================================== */
+.patients-page {
+  min-height: 100vh;
+  background: var(--pp-bg);
+  color: var(--pp-text);
+  padding: 40px 0;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.dark .patients-page{
+    background-color: #000000;
+}
+.patients-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.dark .loading{
+   background: rgba(255, 255, 255, 0.2); 
+}
+.dark .patient-card{
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+.dark .card-body p{
+    color: white;
+}
+.dark .card-header h4{
+    color: white;
+}
+/* =====================================================
+   HEADER
+===================================================== */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.page-header h2 {
+  font-size: 2rem;
+  color: var(--pp-text);
+  margin: 0;
+}
+
+.page-header p {
+  color: var(--pp-text);
+  opacity: 0.8;
+}
+
+.add-btn {
+  align-self: flex-start;
+  background: var(--pp-primary);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.add-btn:hover {
+  background: var(--pp-primary-hover);
+}
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--pp-card);
+  border: 1px solid var(--pp-border);
+  border-radius: 12px;
+}
+
+.empty-state p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.cta-button {
+  display: inline-block;
+  background: var(--pp-primary);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.cta-button:hover {
+  background: var(--pp-primary-hover);
+}
+
+/* =====================================================
+   PATIENTS GRID
+===================================================== */
+.patients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.patient-card {
+  background: var(--pp-card);
+  border: 1px solid var(--pp-border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.patient-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h4 {
+  margin: 0;
+  color: var(--pp-text);
+  font-size: 1.1rem;
+}
+
+.badge {
+  background: var(--pp-badge);
+  color: var(--pp-badge-text);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.card-body p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: var(--pp-text);
+  opacity: 0.9;
+}
+
+.card-footer {
+  margin-top: auto;
+  text-align: right;
+}
+
+.view-link {
+  color: var(--pp-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.view-link:hover {
+  color: var(--pp-primary-hover);
+}
+
+/* =====================================================
+   LOADING
+===================================================== */
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: var(--pp-text);
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+@media (max-width: 600px) {
+  .page-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .patients-grid {
+    grid-template-columns: 1fr;
+  }
+}

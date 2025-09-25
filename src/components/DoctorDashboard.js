@@ -152,11 +152,11 @@ const DoctorDashboard = () => {
               </div>
             )}
             {patients.length > 5 && (
-              <div className="view-all-patients">
-                <Link to="/patients" className="view-all-link">
-                  View All Patients ({patients.length})
-                </Link>
-              </div>
+             <div className="view-all-patients">
+  <Link to="/patients" className="view-all-link">
+    View All Patients ({patients.length})
+  </Link>
+</div>
             )}
           </div>
 

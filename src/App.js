@@ -28,7 +28,7 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop'; // ✅ import
 import PatientDetail from './components/PatientDetail';
 import './styles/App.css';
-
+import PatientsPage from './components/PatientsPage';
 function App() {
   const [theme, setTheme] = useState('light');
   const [user, setUser] = useState(null);
@@ -141,7 +141,7 @@ function App() {
             <Route path="/mapping-details" element={<MappingDetailsPage />} />
             <Route path="/profile" element={<ProfilePage user={user} />} />
              <Route path="/patient/:patientId" element={<PatientDetail />} />
-
+              <Route path="/patients" element={<PatientsPage />} />
             {/* ✅ Protected Routes */}
             <Route 
               path="/add-patient" 
