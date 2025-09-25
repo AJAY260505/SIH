@@ -114,7 +114,7 @@
 
 .patient-info h4 {
   margin: 0 0 0.25rem 0;
-  color: var(--primary-color);
+  color:#1e88e5;
 }
 
 .patient-info p,
@@ -312,9 +312,13 @@
 }
 
 .view-details {
-  color: var(--primary-color);
+  color: #1e88e5;
   font-weight: 600;
+  display: flex;
+position: relative;
+left:520px;
 }
+
 
 .view-all-patients {
   text-align: center;
@@ -324,7 +328,7 @@
 }
 
 .view-all-link {
-  color: var(--primary-color);
+  color:#1e88e5;
   text-decoration: none;
   font-weight: 600;
 }
