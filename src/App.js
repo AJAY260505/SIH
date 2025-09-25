@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   onAuthStateChanged, 
@@ -109,6 +109,14 @@ function App() {
   const closeAuthModal = () => setAuthModalOpen(false);
   const switchAuthMode = (mode) => setAuthMode(mode);
 
+  // ✅ ProtectedRoute component
+  const ProtectedRoute = ({ children }) => {
+    if (!user) {
+      return <Navigate to="/" replace />;
+    }
+    return children;
+  };
+
   return (
     <Router>
       <ScrollToTop /> {/* ✅ ensures scroll to top on route change */}
@@ -132,8 +140,24 @@ function App() {
             <Route path="/details" element={<DetailedViewPage />} />
             <Route path="/mapping-details" element={<MappingDetailsPage />} />
             <Route path="/profile" element={<ProfilePage user={user} />} />
-            <Route path="/add-patient" element={<PatientForm />} />
-            <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+
+            {/* ✅ Protected Routes */}
+            <Route 
+              path="/add-patient" 
+              element={
+                <ProtectedRoute>
+                  <PatientForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/doctor-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <DoctorDashboard />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </main>
         <Footer />
