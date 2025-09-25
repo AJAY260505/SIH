@@ -26,7 +26,7 @@ import DetailedViewPage from './components/DetailedViewPage';
 import MappingDetailsPage from './components/MappingDetailsPage';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop'; // ✅ import
-
+import PatientDetail from './components/PatientDetail';
 import './styles/App.css';
 
 function App() {
@@ -140,6 +140,7 @@ function App() {
             <Route path="/details" element={<DetailedViewPage />} />
             <Route path="/mapping-details" element={<MappingDetailsPage />} />
             <Route path="/profile" element={<ProfilePage user={user} />} />
+             <Route path="/patient/:patientId" element={<PatientDetail />} />
 
             {/* ✅ Protected Routes */}
             <Route 

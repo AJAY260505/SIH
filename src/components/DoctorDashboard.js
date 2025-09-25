@@ -80,7 +80,6 @@ const DoctorDashboard = () => {
             <h2>Doctor Dashboard</h2>
             <p>Welcome back, {doctorData?.name || 'Doctor'}</p>
           </div>
-       
         </motion.div>
 
         {/* Stats */}
@@ -112,7 +111,12 @@ const DoctorDashboard = () => {
         <div className="dashboard-content">
           {/* Recent Patients */}
           <div className="recent-patients">
-            <h3>Recent Patients</h3>
+            <div className="section-header">
+              <h3>Recent Patients</h3>
+              <Link to="/add-patient" className="cta-button small">
+                Add New Patient
+              </Link>
+            </div>
             {patients.length > 0 ? (
               <div className="patients-list">
                 {patients.slice(0, 5).map((patient, index) => (
@@ -123,23 +127,34 @@ const DoctorDashboard = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className="patient-info">
-                      <h4>{patient.fullName}</h4>
-                      <p>{patient.gender}, {patient.age} years</p>
-                    </div>
-                    <div className="patient-contact">
-                      <p>{patient.phone}</p>
-                      <p>{patient.city}, {patient.state}</p>
-                    </div>
+                    <Link to={`/patient/${patient.id}`} className="patient-link">
+                      <div className="patient-info">
+                        <h4>{patient.fullName}</h4>
+                        <p>{patient.gender}, {patient.age} years</p>
+                      </div>
+                      <div className="patient-contact">
+                        <p>{patient.phone}</p>
+                        <p>{patient.city}, {patient.state}</p>
+                      </div>
+                      <div className="patient-actions">
+                        <span className="view-details">View Details →</span>
+                      </div>
+                    </Link>
                   </motion.div>
                 ))}
               </div>
             ) : (
               <div className="no-patients">
-                
                 <p>No patients registered yet.</p>
                 <Link to="/add-patient" className="cta-button reg_another">
                   Register Your First Patient
+                </Link>
+              </div>
+            )}
+            {patients.length > 5 && (
+              <div className="view-all-patients">
+                <Link to="/patients" className="view-all-link">
+                  View All Patients ({patients.length})
                 </Link>
               </div>
             )}

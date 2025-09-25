@@ -269,3 +269,86 @@
   -ms-border-radius: 10px;
   -o-border-radius: 10px;
 }
+/* Add these to your existing DoctorDashboard.css */
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.cta-button.small {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.patient-item {
+  position: relative;
+}
+
+.patient-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.patient-link:hover {
+  background: var(--hover-color);
+  transform: translateX(5px);
+}
+
+.patient-actions {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.patient-link:hover .patient-actions {
+  opacity: 1;
+}
+
+.view-details {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.view-all-patients {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.view-all-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .patient-link {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .patient-actions {
+    opacity: 1;
+    align-self: flex-end;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+}

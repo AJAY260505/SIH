@@ -295,8 +295,7 @@ const PatientForm = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-             <img src="/suc.gif" alt="Success" className="success-gif" />
-
+              <img src="/suc.gif" alt="Success" className="success-gif" />
               <h2>Patient Registered Successfully!</h2>
               <p>The patient information has been saved to the database.</p>
               <div className="success-actions">
