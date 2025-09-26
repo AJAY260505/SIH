@@ -49,7 +49,7 @@ const MappingDetailsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  const API_BASE_URL = "http://localhost:8000";
+  const API_BASE_URL = "https://ayushbandan.duckdns.org/";
 
   // Sync theme with localStorage and header
   useEffect(() => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../firebase/config';
 import './SystemPage.css';
 
 // ----------  utility  ----------
@@ -32,80 +33,97 @@ const SystemPage = ({ systemName }) => {
   const suggestionsRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  // ----------  system config  ----------
-const systemData = {
-  ayurveda: {
-    title: 'Ayurveda',
-    description: 'Ancient Indian system of natural and holistic healing',
-    image: '/img5.png',
-    searchEp: 'https://ayushbandan.duckdns.org/terminologies/ayurveda/search/?q=',
-    csvEp: 'https://ayushbandan.duckdns.org/terminologies/ayurveda/csv/upload/',
-    autoEp: 'https://ayushbandan.duckdns.org/terminologies/ayurveda/autocomplete/?q=',
-    about: `Ayurveda, the "science of life", is a 5,000-year-old healing tradition...`,
-    benefits: [
-      'Truly personalised medicine based on your unique mind-body type',
-      'Natural herbs & oils – minimal side-effects, gentle detox',
-      'Seasonal & daily routines that prevent disease before it starts'
-    ]
-  },
-  siddha: {
-    title: 'Siddha',
-    description: 'One of the oldest traditional medicine systems from South India',
-    image: '/img3.png',
-    searchEp: 'https://ayushbandan.duckdns.org/terminologies/siddha/search/?q=',
-    csvEp: 'https://ayushbandan.duckdns.org/terminologies/siddha/csv/upload/',
-    autoEp: 'https://ayushbandan.duckdns.org/terminologies/siddha/autocomplete/?q=',
-    about: `Siddha is a Tamil healing tradition believed to have been transmitted by the 18 Siddhars...`,
-    benefits: [
-      'Unique Naadi-pariksha (pulse diagnosis) reveals deep imbalances early',
-      'Kaya-kalpa therapies that rejuvenate cells and prolong healthy lifespan',
-      'Varmam energy-point therapy for instant pain relief & vitality'
-    ]
-  },
-  unani: {
-    title: 'Unani',
-    description: 'Greco-Arabic system of medicine based on the teachings of Hippocrates',
-    image: '/img3.png',
-    searchEp: 'https://ayushbandan.duckdns.org/terminologies/unani/search/?q=',
-    csvEp: 'https://ayushbandan.duckdns.org/terminologies/unani/csv/upload/',
-    autoEp: 'https://ayushbandan.duckdns.org/terminologies/unani/autocomplete/?q=',
-    about: `Unani-Tibb is an elegant fusion of Greek, Arabic, Persian and Indian medical wisdom...`,
-    benefits: [
-      'Temperament-based prescriptions – right drug for the right person',
-      'Non-surgical detox via wet-cupping (Hijamat) and leech therapy',
-      'Potent herb-mineral syrups (Joshanda, Khamira) for quick relief'
-    ]
-  },
-  icd11: {
-    title: 'ICD-11',
-    description: 'International Classification of Diseases 11th Revision',
-    image: '/img4.png',
-    searchEp: 'https://ayushbandan.duckdns.org/terminologies/icd11/search/?fuzzy=true&q=',
-    csvEp: null,
-    autoEp: 'https://ayushbandan.duckdns.org/terminologies/icd11/autocomplete/?q=',
-    about: `ICD-11 is the global standard for recording, analysing and reporting health conditions...`,
-    benefits: [
-      'Global language for disease documentation and tele-medicine',
-      'Digital-ready URI-based codes for EHR & mobile apps',
-      'Built-in traditional medicine chapter for AYUSH integration'
-    ]
-  },
-  mappings: {
-    title: 'Mappings',
-    description: 'Cross-links between AYUSH systems and ICD-11 codes',
-    image: '/img6.png',
-    searchEp: 'http://localhost:8000/terminologies/mappings/?system=',
-    csvEp: null,
-    autoEp: null,
-    about: `Mappings help connect Ayurveda, Siddha, Unani and ICD-11 terms for unified healthcare data exchange...`,
-    benefits: [
-      'Bridge traditional & modern healthcare terminologies',
-      'Enable interoperability in electronic health records',
-      'Support research by linking diverse medical systems'
-    ]
-  }
-};
+  // Current user state
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userChecked, setUserChecked] = useState(false);
 
+  useEffect(() => {
+    const unsub = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+      setUserChecked(true);
+    });
+    return unsub;
+  }, []);
+
+  // Admin check - only allow specific admin user
+  const isAdmin = currentUser?.displayName === 'root' && currentUser?.email === 'root@gmail.com';
+
+  // Check if user is logged in (for upload permissions)
+  const isLoggedIn = !!currentUser;
+
+  // ----------  system config  ----------
+  const systemData = {
+    ayurveda: {
+      title: 'Ayurveda',
+      description: 'Ancient Indian system of natural and holistic healing',
+      image: '/img5.png',
+      searchEp: 'https://ayushbandan.duckdns.org/terminologies/ayurveda/search/?q=',
+      csvEp: 'https://ayushbandan.duckdns.org/terminologies/ayurveda/csv/upload/',
+      autoEp: 'https://ayushbandan.duckdns.org/terminologies/ayurveda/autocomplete/?q=',
+      about: `Ayurveda, the "science of life", is a 5,000-year-old healing tradition...`,
+      benefits: [
+        'Truly personalised medicine based on your unique mind-body type',
+        'Natural herbs & oils – minimal side-effects, gentle detox',
+        'Seasonal & daily routines that prevent disease before it starts'
+      ]
+    },
+    siddha: {
+      title: 'Siddha',
+      description: 'One of the oldest traditional medicine systems from South India',
+      image: '/img3.png',
+      searchEp: 'https://ayushbandan.duckdns.org/terminologies/siddha/search/?q=',
+      csvEp: 'https://ayushbandan.duckdns.org/terminologies/siddha/csv/upload/',
+      autoEp: 'https://ayushbandan.duckdns.org/terminologies/siddha/autocomplete/?q=',
+      about: `Siddha is a Tamil healing tradition believed to have been transmitted by the 18 Siddhars...`,
+      benefits: [
+        'Unique Naadi-pariksha (pulse diagnosis) reveals deep imbalances early',
+        'Kaya-kalpa therapies that rejuvenate cells and prolong healthy lifespan',
+        'Varmam energy-point therapy for instant pain relief & vitality'
+      ]
+    },
+    unani: {
+      title: 'Unani',
+      description: 'Greco-Arabic system of medicine based on the teachings of Hippocrates',
+      image: '/img3.png',
+      searchEp: 'https://ayushbandan.duckdns.org/terminologies/unani/search/?q=',
+      csvEp: 'https://ayushbandan.duckdns.org/terminologies/unani/csv/upload/',
+      autoEp: 'https://ayushbandan.duckdns.org/terminologies/unani/autocomplete/?q=',
+      about: `Unani-Tibb is an elegant fusion of Greek, Arabic, Persian and Indian medical wisdom...`,
+      benefits: [
+        'Temperament-based prescriptions – right drug for the right person',
+        'Non-surgical detox via wet-cupping (Hijamat) and leech therapy',
+        'Potent herb-mineral syrups (Joshanda, Khamira) for quick relief'
+      ]
+    },
+    icd11: {
+      title: 'ICD-11',
+      description: 'International Classification of Diseases 11th Revision',
+      image: '/img4.png',
+      searchEp: 'https://ayushbandan.duckdns.org/terminologies/icd11/search/?fuzzy=true&q=',
+      csvEp: null,
+      autoEp: 'https://ayushbandan.duckdns.org/terminologies/icd11/autocomplete/?q=',
+      about: `ICD-11 is the global standard for recording, analysing and reporting health conditions...`,
+      benefits: [
+        'Global language for disease documentation and tele-medicine',
+        'Digital-ready URI-based codes for EHR & mobile apps',
+        'Built-in traditional medicine chapter for AYUSH integration'
+      ]
+    },
+    mappings: {
+      title: 'Mappings',
+      description: 'Cross-links between AYUSH systems and ICD-11 codes',
+      image: '/img6.png',
+      searchEp: 'https://ayushbandan.duckdns.org/terminologies/mappings/?system=',
+      csvEp: null,
+      autoEp: null,
+      about: `Mappings help connect Ayurveda, Siddha, Unani and ICD-11 terms for unified healthcare data exchange...`,
+      benefits: [
+        'Bridge traditional & modern healthcare terminologies',
+        'Enable interoperability in electronic health records',
+        'Support research by linking diverse medical systems'
+      ]
+    }
+  };
 
   const system = systemData[systemName];
 
@@ -115,9 +133,8 @@ const systemData = {
   const [suggTotal, setSuggTotal] = useState(0);
   const [suggLoading, setSuggLoading] = useState(false);
   const [suggTotalPages, setSuggTotalPages] = useState(1);
-  const [allSuggestions, setAllSuggestions] = useState([]); // Store ALL suggestions
+  const [allSuggestions, setAllSuggestions] = useState([]);
 
-  // Enhanced fetch suggestions - get ALL data first, then paginate locally
   const fetchAllSuggestions = async (term) => {
     if (!term || term.length < 2) {
       setAllSuggestions([]);
@@ -126,28 +143,18 @@ const systemData = {
       setSuggTotalPages(1);
       return;
     }
-    
     setSuggLoading(true);
     try {
-      // First, try to get all data with a large limit
       const data = await fetchData(
-        `${system.autoEp}${encodeURIComponent(term)}&limit=1000` // Request large limit to get all data
+        `${system.autoEp}${encodeURIComponent(term)}&limit=1000`
       );
-      
       let allData = [];
-      if (data && Array.isArray(data.results)) {
-        allData = data.results;
-      } else if (Array.isArray(data)) {
-        allData = data;
-      }
-      
+      if (data && Array.isArray(data.results)) allData = data.results;
+      else if (Array.isArray(data)) allData = data;
       setAllSuggestions(allData);
       setSuggTotal(allData.length);
       setSuggTotalPages(Math.ceil(allData.length / suggPerPage));
-      
-      // Show first page
       updateDisplayedSuggestions(allData, 1);
-      
     } catch (error) {
       console.error('Error fetching suggestions:', error);
       setAllSuggestions([]);
@@ -159,14 +166,12 @@ const systemData = {
     }
   };
 
-  // Update displayed suggestions based on current page
   const updateDisplayedSuggestions = (allData, page) => {
-    const startIndex = (page - 1) * suggPerPage;
-    const endIndex = startIndex + suggPerPage;
-    setSuggestions(allData.slice(startIndex, endIndex));
+    const start = (page - 1) * suggPerPage;
+    const end   = start + suggPerPage;
+    setSuggestions(allData.slice(start, end));
   };
 
-  // Debounced search for suggestions
   useEffect(() => {
     const t = setTimeout(() => {
       setSuggPage(1);
@@ -175,53 +180,41 @@ const systemData = {
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  // Update displayed suggestions when page changes
   useEffect(() => {
-    if (allSuggestions.length > 0) {
-      updateDisplayedSuggestions(allSuggestions, suggPage);
-    }
+    if (allSuggestions.length) updateDisplayedSuggestions(allSuggestions, suggPage);
   }, [suggPage, allSuggestions]);
 
-  // Close suggestions when clicking outside - FIXED
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
-          searchInputRef.current && !searchInputRef.current.contains(event.target)) {
+    const handleClickOutside = (e) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(e.target)
+      )
         setShowSuggestions(false);
-      }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Ensure dropdown stays visible when suggestions exist
-  useEffect(() => {
-    if (showSuggestions && suggestions.length > 0 && dropdownRef.current) {
-      dropdownRef.current.style.display = 'block';
-      dropdownRef.current.style.opacity = '1';
-      dropdownRef.current.style.visibility = 'visible';
-    }
-  }, [showSuggestions, suggestions]);
 
   // ----------  search  ----------
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
     if (!searchTerm.trim()) return;
-    
     setIsSearching(true);
     setCurrentPage(1);
-    
     try {
-      const data = await fetchData(`${system.searchEp}${encodeURIComponent(searchTerm)}`);
+      // Updated endpoint handling for mappings
+      const searchUrl = systemName === 'mappings' 
+        ? `${system.searchEp}${encodeURIComponent(searchTerm)}`
+        : `${system.searchEp}${encodeURIComponent(searchTerm)}`;
       
-      if (data && data.results) {
-        setResults(Array.isArray(data.results) ? data.results : []);
-      } else if (Array.isArray(data)) {
-        setResults(data);
-      } else {
-        setResults([]);
-      }
+      const data = await fetchData(searchUrl);
+      let res = [];
+      if (data && data.results) res = Array.isArray(data.results) ? data.results : [];
+      else if (Array.isArray(data)) res = data;
+      setResults(res);
     } catch (error) {
       console.error('Search error:', error);
       setResults([]);
@@ -231,31 +224,54 @@ const systemData = {
     }
   };
 
-  // Quick search from suggestions
   const handleSuggestionClick = (suggestion) => {
     setSearchTerm(suggestion);
     setShowSuggestions(false);
-    // Auto-search when clicking a suggestion
-    setTimeout(() => {
-      handleSearch();
-    }, 100);
+    setTimeout(() => handleSearch(), 100);
   };
 
-  // ----------  csv upload  ----------
-  const handleFilePick = () => fileInputRef.current?.click();
+  // ----------  csv upload with enhanced authentication checks  ----------
+  const handleFilePick = () => {
+    if (!userChecked) {
+      alert('Please wait while we check your authentication status...');
+      return;
+    }
+    
+    if (!isLoggedIn) {
+      alert('Please log in to upload files');
+      return;
+    }
+    
+    if (!isAdmin) {
+      alert('Only admin users can upload files');
+      return;
+    }
+    
+    fileInputRef.current?.click();
+  };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    if (system.csvEp === null) return;
-    
+    if (!file || !system.csvEp) return;
+
+    // Double-check authentication before upload
+    if (!isLoggedIn) {
+      alert('Please log in to upload files');
+      e.target.value = '';
+      return;
+    }
+
+    if (!isAdmin) {
+      alert('Only admin users can upload files');
+      e.target.value = '';
+      return;
+    }
+
     setUploading(true);
     setUploadRes(null);
-    
     const form = new FormData();
     form.append('file', file);
     form.append('update_search_vector', 'true');
-    
     try {
       const res = await fetch(system.csvEp, { method: 'POST', body: form });
       const json = await res.json();
@@ -268,55 +284,39 @@ const systemData = {
     }
   };
 
-  // ----------  navigation  ----------
+  // ----------  navigation / table helpers  ----------
   const handleRowClick = (item) => {
-    navigate('/view-details', { 
-      state: { 
-        item, 
-        system: system.title, 
-        query: searchTerm,
-        timestamp: new Date().toISOString()
-      } 
+    navigate('/view-details', {
+      state: { item, system: system.title, query: searchTerm, timestamp: new Date().toISOString() }
     });
   };
 
   const getTableHeaders = (items) => {
-    if (!items || items.length === 0) return [];
-    
-    const allKeys = new Set();
-    items.forEach(item => {
-      Object.keys(item).forEach(key => allKeys.add(key));
-    });
-    
-    return Array.from(allKeys);
+    if (!items || !items.length) return [];
+    const keys = new Set();
+    items.forEach((item) => Object.keys(item).forEach((k) => keys.add(k)));
+    return Array.from(keys);
   };
 
   const renderTableCell = (value) => {
-    if (value === null || value === undefined) return '-';
+    if (value == null) return '-';
     if (typeof value === 'object') {
-      return JSON.stringify(value).length > 100 
-        ? JSON.stringify(value).substring(0, 100) + '...'
-        : JSON.stringify(value);
+      const str = JSON.stringify(value);
+      return str.length > 100 ? str.slice(0, 100) + '…' : str;
     }
-    if (typeof value === 'string' && value.length > 100) {
-      return value.substring(0, 100) + '...';
-    }
+    if (typeof value === 'string' && value.length > 100) return value.slice(0, 100) + '…';
     return value;
   };
 
-  // ----------  pagination  ----------
   const totalPages = Math.ceil(results.length / resultsPerPage);
-  const currentResults = results.slice(
-    (currentPage - 1) * resultsPerPage, 
-    currentPage * resultsPerPage
-  );
+  const currentResults = results.slice((currentPage - 1) * resultsPerPage, currentPage * resultsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Enhanced suggestion pagination - now using local pagination
+  // ----------  suggestion pagination  ----------
   const handleSuggPage = (page) => {
     if (page < 1 || page > suggTotalPages) return;
     setSuggPage(page);
@@ -324,37 +324,23 @@ const systemData = {
 
   const renderSuggPagination = () => {
     if (suggTotalPages <= 1) return null;
-
     const pages = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, suggPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(suggTotalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
+    const maxVisible = 5;
+    let start = Math.max(1, suggPage - Math.floor(maxVisible / 2));
+    let end   = Math.min(suggTotalPages, start + maxVisible - 1);
+    if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+    for (let i = start; i <= end; i++) {
       pages.push(
-        <button
-          key={i}
-          className={`sugg-page-btn ${suggPage === i ? 'active' : ''}`}
-          onClick={() => handleSuggPage(i)}
-        >
+        <button key={i} className={`sugg-page-btn ${suggPage === i ? 'active' : ''}`} onClick={() => handleSuggPage(i)}>
           {i}
         </button>
       );
     }
-
-    const startItem = ((suggPage - 1) * suggPerPage) + 1;
-    const endItem = Math.min(suggPage * suggPerPage, suggTotal);
-
-    return (
-     <div></div>
-    );
+    const startItem = (suggPage - 1) * suggPerPage + 1;
+    const endItem   = Math.min(suggPage * suggPerPage, suggTotal);
+    return <div className="sugg-pagination-info">Showing {startItem}-{endItem} of {suggTotal}</div>;
   };
 
-  // Keyboard navigation for suggestions
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -362,12 +348,28 @@ const systemData = {
     }
   };
 
+  // Get upload icon title based on authentication status
+  const getUploadIconTitle = () => {
+    if (!userChecked) return 'Checking authentication...';
+    if (!isLoggedIn) return 'Please log in to upload files';
+    if (!isAdmin) return 'Only admin can upload files';
+    return 'Upload CSV to update database';
+  };
+
+  // Get upload icon class based on authentication status
+  const getUploadIconClass = () => {
+    if (!userChecked || uploading) return 'upload-icon checking';
+    if (!isLoggedIn || !isAdmin) return 'upload-icon disabled';
+    return 'upload-icon';
+  };
+
+  // ----------  render  ----------
   return (
     <div className="system-page">
       <div className="containers">
         {/* header */}
-        <motion.div className="system-header" >
-          <motion.div className="system-icon-large" >
+        <motion.div className="system-header">
+          <motion.div className="system-icon-large">
             <img src={system.image} alt={system.title} style={{ width: '120px', height: '120px', objectFit: 'contain', borderRadius: '80px' }} />
           </motion.div>
           <div className="system-info">
@@ -376,7 +378,7 @@ const systemData = {
           </div>
         </motion.div>
 
-        {/* search bar with enhanced autocomplete */}
+        {/* search bar with upload icon */}
         <motion.form onSubmit={handleSearch} className="search-forms" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
           <div className="search-input-container">
             <div className="autocomplete-wrapper" ref={suggestionsRef}>
@@ -394,7 +396,7 @@ const systemData = {
                 className="search-inputs"
               />
 
-              {/* Enhanced suggestions dropdown - FIXED VISIBILITY */}
+              {/* suggestions dropdown */}
               {showSuggestions && searchTerm.length >= 2 && (
                 <div className="suggestions-dropdown" ref={dropdownRef}>
                   {suggLoading ? (
@@ -402,9 +404,9 @@ const systemData = {
                   ) : suggestions.length > 0 ? (
                     <>
                       {suggestions.map((s, i) => (
-                        <div 
-                          key={i} 
-                          className="suggestion-item" 
+                        <div
+                          key={i}
+                          className="suggestion-item"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             handleSuggestionClick(s);
@@ -423,25 +425,25 @@ const systemData = {
               )}
             </div>
 
-            {/* upload icon */}
+            {/* upload icon with enhanced authentication checks */}
             {system.csvEp && (
               <div className="upload-group">
                 <img
                   src="https://cdn-icons-png.flaticon.com/256/10024/10024501.png"
                   alt="upload"
-                  className={`upload-icon ${uploading ? 'uploading' : ''}`}
+                  className={getUploadIconClass()}
                   onClick={handleFilePick}
-                  title="Upload CSV to update database"
+                  title={getUploadIconTitle()}
                 />
                 <input type="file" accept=".csv" ref={fileInputRef} onChange={handleFileUpload} style={{ display: 'none' }} />
               </div>
             )}
 
-            <motion.button 
-              type="submit" 
-              className="search-buttons" 
-              whileHover={{ scale: 1.05 }} 
-              whileTap={{ scale: 0.95 }} 
+            <motion.button
+              type="submit"
+              className="search-buttons"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               disabled={isSearching || !searchTerm.trim()}
             >
               {isSearching ? <div className="loading-spinner" /> : 'Search'}
@@ -465,33 +467,33 @@ const systemData = {
           )}
         </AnimatePresence>
 
-        {/* enhanced results table */}
+        {/* results table */}
         {currentResults.length > 0 && (
           <motion.div className="system-results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <h3>
-              {system.title} Results for "{searchTerm}" 
+              {system.title} Results for "{searchTerm}"
               <small style={{ fontSize: '0.8em', marginLeft: '10px', color: 'var(--text-muted)' }}>
                 (Showing {((currentPage - 1) * resultsPerPage) + 1}-{Math.min(currentPage * resultsPerPage, results.length)} of {results.length} results)
               </small>
             </h3>
-            
+
             <div className="mapping-table-container">
               <table className="mapping-table">
                 <thead>
                   <tr>
                     {getTableHeaders(currentResults).map((k) => (
-                      <th key={k}>{k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</th>
+                      <th key={k}>{k.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {currentResults.map((item, idx) => (
-                    <motion.tr 
-                      key={item.code || item.id || idx} 
-                      className="mapping-row clickable-row" 
-                      initial={{ opacity: 0 }} 
-                      animate={{ opacity: 1 }} 
-                      transition={{ delay: idx * 0.03 }} 
+                    <motion.tr
+                      key={item.code || item.id || idx}
+                      className="mapping-row clickable-row"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: idx * 0.03 }}
                       onClick={() => handleRowClick(item)}
                       title="Click to view details"
                     >
@@ -504,22 +506,15 @@ const systemData = {
               </table>
             </div>
 
-            {/* enhanced pagination */}
             {totalPages > 1 && (
               <div className="pagination">
-                <button 
-                  onClick={() => handlePageChange(1)} 
-                  disabled={currentPage === 1}
-                >
+                <button onClick={() => handlePageChange(1)} disabled={currentPage === 1}>
                   First
                 </button>
-                <button 
-                  onClick={() => handlePageChange(currentPage - 1)} 
-                  disabled={currentPage === 1}
-                >
+                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                   Prev
                 </button>
-                
+
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNum;
                   if (totalPages <= 5) {
@@ -533,9 +528,9 @@ const systemData = {
                   }
 
                   return (
-                    <button 
+                    <button
                       key={pageNum}
-                      onClick={() => handlePageChange(pageNum)} 
+                      onClick={() => handlePageChange(pageNum)}
                       className={currentPage === pageNum ? 'active-page' : ''}
                     >
                       {pageNum}
@@ -543,16 +538,10 @@ const systemData = {
                   );
                 })}
 
-                <button 
-                  onClick={() => handlePageChange(currentPage + 1)} 
-                  disabled={currentPage === totalPages}
-                >
+                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
                   Next
                 </button>
-                <button 
-                  onClick={() => handlePageChange(totalPages)} 
-                  disabled={currentPage === totalPages}
-                >
+                <button onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>
                   Last
                 </button>
               </div>
@@ -560,7 +549,7 @@ const systemData = {
           </motion.div>
         )}
 
-        {/* about / benefits section */}
+        {/* about / benefits */}
         <motion.div className="system-info-content" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 0.8 }} viewport={{ once: true }}>
           <h3>About {system.title}</h3>
           <p>{system.about}</p>
