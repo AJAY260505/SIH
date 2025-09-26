@@ -22,6 +22,13 @@
 .dark .loading, .dark .error-message {
   background: rgba(0, 0, 0, 0.6);
 }
+.centered-text {
+  text-align: center; /* horizontal centering */
+  font-size: 1.5rem;  /* optional styling */
+  font-weight: 600;   /* optional styling */
+  color: #1e88e5;     /* optional styling */
+  margin: 1rem 0;     /* optional spacing */
+}
 
 .error-message h2 {
   color: #e74c3c;

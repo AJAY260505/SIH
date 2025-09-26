@@ -120,7 +120,8 @@ const PatientDetail = () => {
             </div>
             <div className="patient-title">
               <h2>{isEditing ? 'Edit Patient' : 'Patient Details'}</h2>
-              <p>{patientData?.fullName}</p>
+              <p className="centered-text">{patientData?.fullName}</p>
+
             </div>
             {!isEditing && patientData?.createdBy === auth.currentUser?.uid && (
               <div className="action-buttons">
