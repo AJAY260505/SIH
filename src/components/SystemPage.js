@@ -38,70 +38,70 @@ const systemData = {
     title: 'Ayurveda',
     description: 'Ancient Indian system of natural and holistic healing',
     image: '/img5.png',
-    searchEp: '/api/terminologies/ayurveda/search/?q=',
-    csvEp: '/api/terminologies/ayurveda/csv/upload/',
-    autoEp: '/api/terminologies/ayurveda/autocomplete/?q=',
-    about: `Ayurveda, the "science of life", is a 5,000-year-old healing tradition from India.
-    It emphasizes a balance between body, mind, spirit, and environment. Diagnosis and treatment
-    are tailored to each individual’s unique constitution (Prakriti) and imbalances (Vikriti).`,
+    searchEp: 'http://localhost:8000/terminologies/ayurveda/search/?q=',
+    csvEp: 'http://localhost:8000/terminologies/ayurveda/csv/upload/',
+    autoEp: 'http://localhost:8000/terminologies/ayurveda/autocomplete/?q=',
+    about: `Ayurveda, the "science of life", is a 5,000-year-old healing tradition...`,
     benefits: [
       'Truly personalised medicine based on your unique mind-body type',
       'Natural herbs & oils – minimal side-effects, gentle detox',
       'Seasonal & daily routines that prevent disease before it starts'
     ]
   },
-
   siddha: {
     title: 'Siddha',
     description: 'One of the oldest traditional medicine systems from South India',
     image: '/img3.png',
-    searchEp: '/api/terminologies/siddha/search/?q=',
-    csvEp: '/api/terminologies/siddha/csv/upload/',
-    autoEp: '/api/terminologies/siddha/autocomplete/?q=',
-    about: `Siddha medicine is a Tamil healing tradition, believed to have been transmitted
-    by the 18 Siddhars (enlightened sages). It integrates alchemy, spirituality, and
-    herbal medicine. Diagnosis often involves pulse reading (Naadi) and therapies to
-    balance the three humors (Vali, Azhal, Iyyam).`,
+    searchEp: 'http://localhost:8000/terminologies/siddha/search/?q=',
+    csvEp: 'http://localhost:8000/terminologies/siddha/csv/upload/',
+    autoEp: 'http://localhost:8000/terminologies/siddha/autocomplete/?q=',
+    about: `Siddha is a Tamil healing tradition believed to have been transmitted by the 18 Siddhars...`,
     benefits: [
       'Unique Naadi-pariksha (pulse diagnosis) reveals deep imbalances early',
       'Kaya-kalpa therapies that rejuvenate cells and prolong healthy lifespan',
       'Varmam energy-point therapy for instant pain relief & vitality'
     ]
   },
-
   unani: {
     title: 'Unani',
     description: 'Greco-Arabic system of medicine based on the teachings of Hippocrates',
     image: '/img3.png',
-    searchEp: '/api/terminologies/unani/search/?q=',
-    csvEp: '/api/terminologies/unani/csv/upload/',
-    autoEp: '/api/terminologies/unani/autocomplete/?q=',
-    about: `Unani-Tibb (Greek-Arabic medicine) is a blend of Hippocratic principles and
-    Arabic medical knowledge, later enriched in India. It views health as a balance
-    of four humors: blood, phlegm, yellow bile, and black bile. Diagnosis includes
-    pulse, urine, and stool examination.`,
+    searchEp: 'http://localhost:8000/terminologies/unani/search/?q=',
+    csvEp: 'http://localhost:8000/terminologies/unani/csv/upload/',
+    autoEp: 'http://localhost:8000/terminologies/unani/autocomplete/?q=',
+    about: `Unani-Tibb is an elegant fusion of Greek, Arabic, Persian and Indian medical wisdom...`,
     benefits: [
       'Temperament-based prescriptions – right drug for the right person',
       'Non-surgical detox via wet-cupping (Hijamat) and leech therapy',
       'Potent herb-mineral syrups (Joshanda, Khamira) for quick relief'
     ]
   },
-
   icd11: {
     title: 'ICD-11',
     description: 'International Classification of Diseases 11th Revision',
     image: '/img4.png',
-    searchEp: '/api/terminologies/icd11/search/?q=',
+    searchEp: 'http://localhost:8000/terminologies/icd11/search/?q=',
     csvEp: null,
-    autoEp: '/api/terminologies/icd11/autocomplete/?q=',
-    about: `ICD-11 (by WHO) is the latest global health classification standard. It allows
-    systematic recording and reporting of diseases, conditions, and health-related problems.
-    Unlike ICD-10, ICD-11 is digital-friendly and supports interoperability across health
-    information systems.`,
+    autoEp: 'http://localhost:8000/terminologies/icd11/autocomplete/?q=',
+    about: `ICD-11 is the global standard for recording, analysing and reporting health conditions...`,
     benefits: [
       'Global language for disease documentation and tele-medicine',
       'Digital-ready URI-based codes for EHR & mobile apps',
       'Built-in traditional medicine chapter for AYUSH integration'
+    ]
+  },
+  mappings: {
+    title: 'Mappings',
+    description: 'Cross-links between AYUSH systems and ICD-11 codes',
+    image: '/img6.png',
+    searchEp: 'http://localhost:8000/terminologies/mappings/?system=',
+    csvEp: null,
+    autoEp: null,
+    about: `Mappings help connect Ayurveda, Siddha, Unani and ICD-11 terms for unified healthcare data exchange...`,
+    benefits: [
+      'Bridge traditional & modern healthcare terminologies',
+      'Enable interoperability in electronic health records',
+      'Support research by linking diverse medical systems'
     ]
   }
 };
