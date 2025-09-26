@@ -13,13 +13,18 @@ const DoctorDashboard = () => {
     ayurveda: 0,
     siddha: 0,
     unani: 0,
-    icd11: 0
+    totalMappings: 0
   });
+  const [mappingsData, setMappingsData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       const user = auth.currentUser;
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       try {
         // Fetch doctor data
@@ -37,21 +42,90 @@ const DoctorDashboard = () => {
         });
         setPatients(patientsData);
 
-        // Calculate stats
+        // Fetch mappings stats from the endpoint
+        const mappingsResponse = await fetch('https://ayushbandan.duckdns.org/terminologies/mappings/stats/');
+        if (mappingsResponse.ok) {
+          const mappingsStats = await mappingsResponse.json();
+          setMappingsData(mappingsStats);
+          
+          // Animate the numbers from 0 to the actual values
+          animateStats(mappingsStats, patientsData.length);
+        } else {
+          // Fallback to random numbers if API fails
+          setStats({
+            totalPatients: patientsData.length,
+            ayurveda: Math.floor(Math.random() * 10),
+            siddha: Math.floor(Math.random() * 8),
+            unani: Math.floor(Math.random() * 6),
+            totalMappings: Math.floor(Math.random() * 12)
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        // Fallback to random numbers on error
         setStats({
-          totalPatients: patientsData.length,
+          totalPatients: patients.length,
           ayurveda: Math.floor(Math.random() * 10),
           siddha: Math.floor(Math.random() * 8),
           unani: Math.floor(Math.random() * 6),
-          icd11: Math.floor(Math.random() * 12)
+          totalMappings: Math.floor(Math.random() * 12)
         });
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
+
+  const animateStats = (mappingsStats, patientCount) => {
+    const targetStats = {
+      totalPatients: patientCount,
+      ayurveda: mappingsStats.by_system?.ayurveda || 0,
+      siddha: mappingsStats.by_system?.siddha || 0,
+      unani: mappingsStats.by_system?.unani || 0,
+      totalMappings: mappingsStats.total_mappings || 0
+    };
+
+    // Start from 0
+    setStats({
+      totalPatients: 0,
+      ayurveda: 0,
+      siddha: 0,
+      unani: 0,
+      totalMappings: 0
+    });
+
+    // Animate each stat with different durations for smooth effect
+    const duration = 2000; // 2 seconds total
+    const steps = 60; // Number of animation steps
+    const stepDuration = duration / steps;
+
+    Object.keys(targetStats).forEach((key, index) => {
+      const targetValue = targetStats[key];
+      let currentStep = 0;
+
+      const interval = setInterval(() => {
+        currentStep++;
+        const progress = currentStep / steps;
+        const currentValue = Math.floor(targetValue * progress);
+
+        setStats(prev => ({
+          ...prev,
+          [key]: currentValue
+        }));
+
+        if (currentStep >= steps) {
+          clearInterval(interval);
+          // Ensure final value is exact
+          setStats(prev => ({
+            ...prev,
+            [key]: targetValue
+          }));
+        }
+      }, stepDuration);
+    });
+  };
 
   if (!auth.currentUser) {
     return (
@@ -60,6 +134,19 @@ const DoctorDashboard = () => {
           <div className="not-signed-in">
             <h2>Please sign in to view your dashboard</h2>
             <Link to="/" className="cta-button">Go to Home</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="doctor-dashboard">
+        <div className="container">
+          <div className="loading-state">
+            <h2>Loading Dashboard...</h2>
+            <div className="loading-spinner"></div>
           </div>
         </div>
       </div>
@@ -80,16 +167,21 @@ const DoctorDashboard = () => {
             <h2>Doctor Dashboard</h2>
             <p>Welcome back, {doctorData?.name || 'Doctor'}</p>
           </div>
+          {mappingsData && (
+            <div className="mappings-info">
+              <small>Live data from AYUSH Bandhan Mappings</small>
+            </div>
+          )}
         </motion.div>
 
         {/* Stats */}
         <div className="stats-grid">
           {[
             { icon: "👥", label: "Total Patients", value: stats.totalPatients },
-            { icon: "🌿", label: "Ayurveda Cases", value: stats.ayurveda },
-            { icon: "🍃", label: "Siddha Cases", value: stats.siddha },
-            { icon: "🌱", label: "Unani Cases", value: stats.unani },
-            { icon: "🏥", label: "ICD-11 Cases", value: stats.icd11 }
+            { icon: "🌿", label: "Ayurveda", value: stats.ayurveda },
+            { icon: "🍃", label: "Siddha", value: stats.siddha },
+            { icon: "🌱", label: "Unani ", value: stats.unani },
+            { icon: "🔗", label: "Total ", value: stats.totalMappings }
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -100,7 +192,7 @@ const DoctorDashboard = () => {
             >
               <div className="stat-icon">{stat.icon}</div>
               <div className="stat-content">
-                <h3>{stat.value}</h3>
+                <h3>{stat.value.toLocaleString()}</h3>
                 <p>{stat.label}</p>
               </div>
             </motion.div>
@@ -152,11 +244,11 @@ const DoctorDashboard = () => {
               </div>
             )}
             {patients.length > 5 && (
-             <div className="view-all-patients">
-  <Link to="/patients" className="view-all-link">
-    View All Patients ({patients.length})
-  </Link>
-</div>
+              <div className="view-all-patients">
+                <Link to="/patients" className="view-all-link">
+                  View All Patients ({patients.length})
+                </Link>
+              </div>
             )}
           </div>
 
@@ -196,6 +288,7 @@ const DoctorDashboard = () => {
             </div>
           </div>
         </div>
+       
       </div>
     </div>
   );

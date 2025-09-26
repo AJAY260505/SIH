@@ -135,6 +135,8 @@
   border-radius: 10px;
   padding: 1.5rem;
   transition: background 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .detail-row {
@@ -161,7 +163,7 @@
 
 .edit-profile-btn a {
   padding: 0.6rem 1.5rem;
-  background: #42a5f5;
+  background: #1e88e5;
   color: white;
   border-radius: 6px;
   text-decoration: none;
@@ -169,7 +171,7 @@
 }
 
 .edit-profile-btn a:hover {
-  background: var(--secondary-color);
+  background: #1565c0;
 }
 
 .not-signed-in {
@@ -199,6 +201,46 @@
   object-fit: cover;
 }
 
+/* Button styles */
+.cta-button {
+  background: #1e88e5 !important;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: inline-block;
+}
+
+.cta-button:hover {
+  background: #1565c0 !important;
+  color: white;
+  text-decoration: none;
+}
+
+.cta-button.small {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.reg_another {
+  background: #1e88e5 !important;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.3s ease;
+  display: inline-block;
+}
+
+.reg_another:hover {
+  background: #1565c0 !important;
+  color: white;
+  text-decoration: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .dashboard-content {
@@ -216,9 +258,7 @@
     font-size: 1.6rem;
   }
 }
-.cta-button{
-  margin-top: 20px;
-}
+
 /* Dark mode adjustments */
 .App.dark {
   background: #000;
@@ -251,36 +291,23 @@
 .App.dark .no-patients {
   color: #ccc;
 }
-.no-patients {
-  text-align: center;
-  padding: 2rem 1rem;
-  color: var(--text-muted);
-}
 
 .no-patients-gif {
   width: 200px;
   max-width: 100%;
   margin-bottom: 1.5rem;
 }
+
 .dashboard-actions .cta-button{
   border-radius: 10px;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  -o-border-radius: 10px;
 }
-/* Add these to your existing DoctorDashboard.css */
 
+/* Section header and patient actions */
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-}
-
-.cta-button.small {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
 }
 
 .patient-item {
@@ -293,6 +320,7 @@
   align-items: center;
   text-decoration: none;
   color: inherit;
+  width: 100%;
   padding: 1rem;
   transition: all 0.3s ease;
 }
@@ -303,22 +331,15 @@
 }
 
 .patient-actions {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.patient-link:hover .patient-actions {
   opacity: 1;
+  transition: opacity 0.3s ease;
 }
 
 .view-details {
   color: #1e88e5;
   font-weight: 600;
   display: flex;
-position: relative;
-left:520px;
 }
-
 
 .view-all-patients {
   text-align: center;
@@ -337,6 +358,27 @@ left:520px;
   text-decoration: underline;
 }
 
+/* Loading state */
+.loading-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1e88e5;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+  margin: 1rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .patient-link {
@@ -346,7 +388,6 @@ left:520px;
   }
   
   .patient-actions {
-    opacity: 1;
     align-self: flex-end;
   }
   
@@ -354,5 +395,9 @@ left:520px;
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
+  }
+  
+  .view-details {
+    align-self: flex-end;
   }
 }
