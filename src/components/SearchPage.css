@@ -585,7 +585,10 @@ td{
   font-size: 2.5rem;
   font-weight: 700;
 }
-
+.back-btn{
+  position: relative;
+  right: 45%;
+}
 .system-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
