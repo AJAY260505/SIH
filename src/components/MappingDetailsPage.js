@@ -15,16 +15,20 @@ const fetchData = async (url) => {
 };
 
 // Function to fetch all paginated data
-const fetchAllPaginatedData = async (baseUrl, searchTerm) => {
+const fetchAllPaginatedData = async (baseUrl, searchTerm, system = null) => {
   let allResults = [];
-  let nextUrl = `${baseUrl}?q=${encodeURIComponent(searchTerm)}`;
+  let nextUrl = system === 'combined' 
+    ? `${baseUrl}/terminologies/search/combined/?q=${encodeURIComponent(searchTerm)}&fuzzy=true&threshold=0.2`
+    : system === 'icd11'
+    ? `${baseUrl}/terminologies/icd11/search/?q=${encodeURIComponent(searchTerm)}&fuzzy=true&threshold=0.2`
+    : `${baseUrl}/terminologies/${system}/search/?q=${encodeURIComponent(searchTerm)}&threshold=0.1`;
   
   try {
     while (nextUrl) {
       const data = await fetchData(nextUrl);
       if (data && data.results) {
         allResults = [...allResults, ...data.results];
-        nextUrl = data.next; // Assuming your API uses 'next' for pagination
+        nextUrl = data.next;
       } else {
         break;
       }
@@ -39,7 +43,7 @@ const fetchAllPaginatedData = async (baseUrl, searchTerm) => {
 const MappingDetailsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { mapping, searchParams, systemData, searchTerm, item, system, source } = location.state || {};
+  const { mapping, searchParams, additionalData, searchTerm, item, system, source, systemType } = location.state || {};
   const [activeTab, setActiveTab] = useState("overview");
   const [isLoading, setIsLoading] = useState(false);
   const [allData, setAllData] = useState(null);
@@ -49,7 +53,7 @@ const MappingDetailsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  const API_BASE_URL = "https://ayushbandan.duckdns.org/";
+  const API_BASE_URL = "https://ayushbandan.duckdns.org";
 
   // Sync theme with localStorage and header
   useEffect(() => {
@@ -59,17 +63,14 @@ const MappingDetailsPage = () => {
       document.documentElement.setAttribute('data-theme', savedTheme);
     };
 
-    // Initial theme setup
     updateTheme();
 
-    // Listen for theme changes from header
     const handleStorageChange = (e) => {
       if (e.key === 'theme') {
         updateTheme();
       }
     };
 
-    // Listen for custom theme change event (if header triggers it)
     const handleThemeChange = (e) => {
       if (e.detail && e.detail.theme) {
         setTheme(e.detail.theme);
@@ -189,37 +190,36 @@ const MappingDetailsPage = () => {
       if (searchTerm) {
         setIsLoading(true);
         try {
-          const [ayurvedaData, unaniData, siddhaData, icd11Data, mappingData] = await Promise.all([
-            fetchAllPaginatedData(`${API_BASE_URL}/terminologies/ayurveda/search`, searchTerm),
-            fetchAllPaginatedData(`${API_BASE_URL}/terminologies/unani/search`, searchTerm),
-            fetchAllPaginatedData(`${API_BASE_URL}/terminologies/siddha/search`, searchTerm),
-            fetchAllPaginatedData(`${API_BASE_URL}/terminologies/icd11/search`, searchTerm),
-            fetchData(`${API_BASE_URL}/terminologies/mappings/?system=${system || 'ayurveda'}&q=${encodeURIComponent(searchTerm)}&min_confidence=0.1`)
+          const [combinedData, ayurvedaData, unaniData, siddhaData, icd11Data] = await Promise.all([
+            fetchAllPaginatedData(API_BASE_URL, searchTerm, 'combined'),
+            fetchAllPaginatedData(API_BASE_URL, searchTerm, 'ayurveda'),
+            fetchAllPaginatedData(API_BASE_URL, searchTerm, 'unani'),
+            fetchAllPaginatedData(API_BASE_URL, searchTerm, 'siddha'),
+            fetchAllPaginatedData(API_BASE_URL, searchTerm, 'icd11')
           ]);
 
-          // For mapping data, combine results and fuzzy matches
-          const allMappingResults = [
-            ...(mappingData?.results || []),
-            ...(mappingData?.fuzzy_matches_without_mappings || [])
-          ];
-
           setAllData({ 
+            combined: combinedData,
             ayurveda: ayurvedaData, 
             unani: unaniData, 
-            siddha: siddhaData, 
-            icd11: icd11Data, 
-            mapping: { 
-              results: allMappingResults,
-              count: allMappingResults.length
-            }
+            siddha: siddhaData,
+            icd11: icd11Data
           });
 
+          // Set initial selected result based on what was passed in
           if (mapping) {
             setSelectedResult({ 
-              ...mapping.source_term, 
-              system: 'Source Term', 
-              mappingData: mapping,
-              type: 'mapping'
+              ...mapping, 
+              system: systemType || 'Combined', 
+              type: 'mapping',
+              termName: mapping.source_term?.english_name || mapping.title || searchTerm
+            });
+          } else if (item) {
+            setSelectedResult({
+              ...item,
+              system: systemType || 'System',
+              type: 'item',
+              termName: item.english_name || item.title || searchTerm
             });
           }
         } catch (error) {
@@ -231,7 +231,7 @@ const MappingDetailsPage = () => {
     };
 
     fetchAllData();
-  }, [searchTerm, system, mapping]);
+  }, [searchTerm, mapping, item, systemType]);
 
   // Reset to page 1 when tab changes
   useEffect(() => {
@@ -244,20 +244,20 @@ const MappingDetailsPage = () => {
     
     setIsLoading(true);
     try {
-      const [ayurvedaDetail, unaniDetail, siddhaDetail, icd11Detail, mappingDetail] = await Promise.all([
-        fetchAllPaginatedData(`${API_BASE_URL}/terminologies/ayurveda/search`, termName),
-        fetchAllPaginatedData(`${API_BASE_URL}/terminologies/unani/search`, termName),
-        fetchAllPaginatedData(`${API_BASE_URL}/terminologies/siddha/search`, termName),
-        fetchAllPaginatedData(`${API_BASE_URL}/terminologies/icd11/search`, termName),
-        fetchData(`${API_BASE_URL}/terminologies/mappings/?system=ayurveda&q=${encodeURIComponent(termName)}&min_confidence=0.1`)
+      const [combinedDetail, ayurvedaDetail, unaniDetail, siddhaDetail, icd11Detail] = await Promise.all([
+        fetchAllPaginatedData(API_BASE_URL, termName, 'combined'),
+        fetchAllPaginatedData(API_BASE_URL, termName, 'ayurveda'),
+        fetchAllPaginatedData(API_BASE_URL, termName, 'unani'),
+        fetchAllPaginatedData(API_BASE_URL, termName, 'siddha'),
+        fetchAllPaginatedData(API_BASE_URL, termName, 'icd11')
       ]);
 
       setDetailedData({
+        combined: combinedDetail,
         ayurveda: ayurvedaDetail,
         unani: unaniDetail,
         siddha: siddhaDetail,
-        icd11: icd11Detail,
-        mapping: mappingDetail
+        icd11: icd11Detail
       });
     } catch (error) {
       console.error("Error fetching detailed data:", error);
@@ -268,7 +268,13 @@ const MappingDetailsPage = () => {
 
   const handleResultClick = async (result, systemName, type = 'system') => {
     const termName = result.english_name || result.title || result.name || result.source_term?.english_name;
-    setSelectedResult({ ...result, system: systemName, type, termName });
+    setSelectedResult({ 
+      ...result, 
+      system: systemName, 
+      type, 
+      termName,
+      definition: result.definition
+    });
     setActiveTab('detailed-view');
     await fetchDetailedData(termName);
   };
@@ -304,8 +310,8 @@ const MappingDetailsPage = () => {
                 {systemName === 'Unani' && <th>Romanized Name</th>}
                 {systemName === 'Siddha' && <th>Tamil Name</th>}
                 {systemName === 'Siddha' && <th>Romanized Name</th>}
-                {systemName === 'ICD-11' && <th>Title</th>}
                 {systemName === 'ICD-11' && <th>Class Kind</th>}
+                {systemName === 'Combined' && <th>Definition</th>}
                 <th>Actions</th>
               </tr>
             </thead>
@@ -339,10 +345,12 @@ const MappingDetailsPage = () => {
                     </>
                   )}
                   {systemName === 'ICD-11' && (
-                    <>
-                      <td>{result.title || "-"}</td>
-                      <td>{result.class_kind || "-"}</td>
-                    </>
+                    <td>{result.class_kind || "-"}</td>
+                  )}
+                  {systemName === 'Combined' && (
+                    <td className="definition-cell">
+                      {result.definition ? `${result.definition.substring(0, 100)}...` : "-"}
+                    </td>
                   )}
                   <td>
                     <button 
@@ -362,118 +370,93 @@ const MappingDetailsPage = () => {
     );
   };
 
-  const renderMappings = () => {
-    if (!allData?.mapping?.results?.length) {
+  const renderCombinedResults = () => {
+    if (!allData?.combined?.results?.length) {
       return (
         <div className="no-results">
-          <p>No mapping data available.</p>
+          <p>No combined search data available.</p>
         </div>
       );
     }
 
-    const currentMappings = getCurrentPageData(allData.mapping);
+    const currentResults = getCurrentPageData(allData.combined);
 
     return (
-      <div className="mappings-section">
-        <div className="mapping-results">
-          <h3>Mappings and Similar Terms</h3>
-          {currentMappings.map((mapping, index) => (
-            <div key={index} className="mapping-card detailed">
-              <div className="mapping-header">
-                <h4>Result #{index + 1 + ((currentPage - 1) * itemsPerPage)}</h4>
-                {mapping.confidence_score && (
-                  <span className="confidence-badge">
-                    Confidence: {(mapping.confidence_score * 100).toFixed(1)}%
-                  </span>
-                )}
-                {mapping.similarity && (
-                  <span className="similarity-badge">
-                    Similarity: {(mapping.similarity * 100).toFixed(1)}%
+      <div className="combined-results">
+        <h3>ICD-11 Terms with Traditional Medicine Mappings</h3>
+        {currentResults.map((result, index) => (
+          <div key={index} className="combined-card detailed">
+            <div className="combined-header">
+              <h4>{result.title}</h4>
+              <div className="combined-meta">
+                <span className="code-badge">Code: {result.code}</span>
+                {result.search_score && (
+                  <span className="score-badge">
+                    Search Score: {(result.search_score * 100).toFixed(1)}%
                   </span>
                 )}
               </div>
-              
-              <div className="mapping-details-grid">
-                {/* Source Term */}
-                <div className="mapping-source">
-                  <h5>Source Term</h5>
-                  <div className="term-details">
-                    <p><strong>Code:</strong> {mapping.code || mapping.source_term?.code || 'N/A'}</p>
-                    <p><strong>Name:</strong> {mapping.english_name || mapping.source_term?.english_name || mapping.title || 'N/A'}</p>
-                    {mapping.source_term?.hindi_name && (
-                      <p><strong>Hindi Name:</strong> {mapping.source_term.hindi_name}</p>
+            </div>
+            
+            <div className="combined-content">
+              <div className="icd-section">
+                <h5>ICD-11 Details</h5>
+                <div className="definition-section">
+                  <strong>Definition:</strong>
+                  <p>{result.definition || "No definition available"}</p>
+                </div>
+                <div className="icd-meta">
+                  <span><strong>Class Kind:</strong> {result.class_kind || "N/A"}</span>
+                  <span><strong>Foundation URI:</strong> {result.foundation_uri ? 
+                    <a href={result.foundation_uri} target="_blank" rel="noopener noreferrer">View</a> : "N/A"}</span>
+                </div>
+              </div>
+
+              <div className="mappings-section">
+                <h5>Traditional Medicine Mappings</h5>
+                <div className="mapping-grid">
+                  {['ayurveda', 'siddha', 'unani'].map(system => (
+                    <div key={system} className="mapping-item">
+                      <h6>{system.charAt(0).toUpperCase() + system.slice(1)}</h6>
+                      {result[`related_${system}`] ? (
+                        <div className="mapping-details">
+                          <p><strong>Code:</strong> {result[`related_${system}`].code}</p>
+                          <p><strong>Name:</strong> {result[`related_${system}`].english_name}</p>
+                          {result[`related_${system}`].local_name && (
+                            <p><strong>Local Name:</strong> {result[`related_${system}`].local_name}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="no-mapping">No mapping available</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {result.mapping_info && (
+                <div className="mapping-info-section">
+                  <h5>Mapping Information</h5>
+                  <div className="mapping-info-grid">
+                    <span><strong>Confidence:</strong> {(result.mapping_info.confidence_score * 100).toFixed(1)}%</span>
+                    <span><strong>Source System:</strong> {result.mapping_info.source_system}</span>
+                    {result.mapping_info.icd_similarity && (
+                      <span><strong>ICD Similarity:</strong> {(result.mapping_info.icd_similarity * 100).toFixed(1)}%</span>
                     )}
                   </div>
                 </div>
-
-                {/* Ayurveda Mapping */}
-                {mapping.namaste_terms?.ayurveda && (
-                  <div className="mapping-target">
-                    <h5>Ayurveda Mapping</h5>
-                    <div className="term-details">
-                      <p><strong>Code:</strong> {mapping.namaste_terms.ayurveda.code}</p>
-                      <p><strong>Name:</strong> {mapping.namaste_terms.ayurveda.english_name}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Siddha Mapping */}
-                {mapping.namaste_terms?.siddha && (
-                  <div className="mapping-target">
-                    <h5>Siddha Mapping</h5>
-                    <div className="term-details">
-                      <p><strong>Code:</strong> {mapping.namaste_terms.siddha.code}</p>
-                      <p><strong>Name:</strong> {mapping.namaste_terms.siddha.english_name}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Unani Mapping */}
-                {mapping.namaste_terms?.unani && (
-                  <div className="mapping-target">
-                    <h5>Unani Mapping</h5>
-                    <div className="term-details">
-                      <p><strong>Code:</strong> {mapping.namaste_terms.unani.code}</p>
-                      <p><strong>Name:</strong> {mapping.namaste_terms.unani.english_name}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* ICD-11 Mapping */}
-                {mapping.icd_mapping && (
-                  <div className="mapping-target">
-                    <h5>ICD-11 Mapping</h5>
-                    <div className="term-details">
-                      <p><strong>Code:</strong> {mapping.icd_mapping.code}</p>
-                      <p><strong>Title:</strong> {mapping.icd_mapping.title}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Fuzzy Match Info */}
-                {mapping.message && (
-                  <div className="mapping-info">
-                    <h5>Status</h5>
-                    <div className="term-details">
-                      <p><strong>Message:</strong> {mapping.message}</p>
-                      {mapping.similarity && (
-                        <p><strong>Similarity:</strong> {(mapping.similarity * 100).toFixed(1)}%</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <button 
-                className="view-full-details-btn"
-                onClick={() => handleResultClick(mapping, 'Mapping', 'mapping')}
-              >
-                View Full Details
-              </button>
+              )}
             </div>
-          ))}
-          {renderPagination(allData.mapping)}
-        </div>
+            
+            <button 
+              className="view-full-details-btn"
+              onClick={() => handleResultClick(result, 'Combined', 'combined')}
+            >
+              View Full Details
+            </button>
+          </div>
+        ))}
+        {renderPagination(allData.combined)}
       </div>
     );
   };
@@ -503,6 +486,7 @@ const MappingDetailsPage = () => {
     const termName = result.termName || result.english_name || result.title || result.name || result.source_term?.english_name;
     
     // Get best matches from detailed data
+    const combinedMatch = detailedData ? findBestMatch(detailedData.combined, termName) : null;
     const ayurvedaMatch = detailedData ? findBestMatch(detailedData.ayurveda, termName) : null;
     const unaniMatch = detailedData ? findBestMatch(detailedData.unani, termName) : null;
     const siddhaMatch = detailedData ? findBestMatch(detailedData.siddha, termName) : null;
@@ -521,9 +505,9 @@ const MappingDetailsPage = () => {
                   {(result.confidence_score * 100).toFixed(1)}% Confidence
                 </span>
               )}
-              {result.similarity && (
-                <span className="similarity-tag">
-                  {(result.similarity * 100).toFixed(1)}% Similarity
+              {result.search_score && (
+                <span className="score-tag">
+                  {(result.search_score * 100).toFixed(1)}% Search Score
                 </span>
               )}
             </div>
@@ -531,6 +515,53 @@ const MappingDetailsPage = () => {
         </div>
 
         <div className="detail-content">
+          {/* ICD-11/Combined Details */}
+          <div className="detail-section">
+            <h4>ICD-11 Details</h4>
+            {combinedMatch ? (
+              <div className="system-details-grid">
+                <div className="detail-item">
+                  <label>CODE</label>
+                  <span className="highlight-code">{combinedMatch.code || 'N/A'}</span>
+                </div>
+                <div className="detail-item">
+                  <label>TITLE</label>
+                  <span>{combinedMatch.title || 'N/A'}</span>
+                </div>
+                <div className="detail-item full-width">
+                  <label>DEFINITION</label>
+                  <div className="definition-content">
+                    {combinedMatch.definition || 'No definition available'}
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <label>CLASS KIND</label>
+                  <span>{combinedMatch.class_kind || 'N/A'}</span>
+                </div>
+                <div className="detail-item">
+                  <label>FOUNDATION URI</label>
+                  <span className="uri-link">
+                    {combinedMatch.foundation_uri ? 
+                      <a href={combinedMatch.foundation_uri} target="_blank" rel="noopener noreferrer">
+                        View in ICD-11 Browser
+                      </a> : 'N/A'
+                    }
+                  </span>
+                </div>
+                {combinedMatch.search_score && (
+                  <div className="detail-item">
+                    <label>SEARCH SCORE</label>
+                    <span className="score-value">{(combinedMatch.search_score * 100).toFixed(1)}%</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="no-data-available">
+                <p>No ICD-11 data available for "{termName}"</p>
+              </div>
+            )}
+          </div>
+
           {/* Ayurveda Details */}
           <div className="detail-section">
             <h4>Ayurveda Details</h4>
@@ -636,9 +667,9 @@ const MappingDetailsPage = () => {
             )}
           </div>
 
-          {/* ICD-11 Details */}
+          {/* ICD-11 Details (separate from combined) */}
           <div className="detail-section">
-            <h4>ICD-11 Details</h4>
+            <h4>ICD-11 Direct Search Results</h4>
             {icd11Match ? (
               <div className="system-details-grid">
                 <div className="detail-item">
@@ -651,7 +682,13 @@ const MappingDetailsPage = () => {
                 </div>
                 <div className="detail-item">
                   <label>FOUNDATION URI</label>
-                  <span className="uri-link">{icd11Match.foundation_uri || 'N/A'}</span>
+                  <span className="uri-link">
+                    {icd11Match.foundation_uri ? 
+                      <a href={icd11Match.foundation_uri} target="_blank" rel="noopener noreferrer">
+                        View
+                      </a> : 'N/A'
+                    }
+                  </span>
                 </div>
                 <div className="detail-item">
                   <label>CLASS KIND</label>
@@ -660,7 +697,7 @@ const MappingDetailsPage = () => {
               </div>
             ) : (
               <div className="no-data-available">
-                <p>No ICD-11 data available for "{termName}"</p>
+                <p>No ICD-11 direct search data available for "{termName}"</p>
               </div>
             )}
           </div>
@@ -682,7 +719,7 @@ const MappingDetailsPage = () => {
                 </div>
                 <div className="detail-item">
                   <label>SOURCE SYSTEM</label>
-                  <span>{searchParams?.system || 'Ayurveda'}</span>
+                  <span>{searchParams?.system || 'ICD-11'}</span>
                 </div>
               </div>
             </div>
@@ -737,7 +774,7 @@ const MappingDetailsPage = () => {
         </motion.div>
 
         <div className="tab-navigation">
-          {['overview', 'ayurveda', 'unani', 'siddha', 'icd11', 'mappings', 'detailed-view'].map((tab) => (
+          {['overview', 'ayurveda', 'unani', 'siddha', 'icd11', 'detailed-view'].map((tab) => (
             <button 
               key={tab}
               className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
@@ -754,11 +791,11 @@ const MappingDetailsPage = () => {
               <h2>Search Results Overview</h2>
               <div className="overview-cards">
                 {[
+                  { name: 'Combined', data: allData?.combined, color: '#2196F3', count: allData?.combined?.count || 0 },
                   { name: 'Ayurveda', data: allData?.ayurveda, color: '#4CAF50', count: allData?.ayurveda?.count || 0 },
                   { name: 'Unani', data: allData?.unani, color: '#FF9800', count: allData?.unani?.count || 0 },
                   { name: 'Siddha', data: allData?.siddha, color: '#9C27B0', count: allData?.siddha?.count || 0 },
-                  { name: 'ICD-11', data: allData?.icd11, color: '#2196F3', count: allData?.icd11?.count || 0 },
-                  { name: 'Mappings', data: allData?.mapping, color: '#1e88e5', count: allData?.mapping?.count || 0 }
+                  { name: 'ICD-11', data: allData?.icd11, color: '#F44336', count: allData?.icd11?.count || 0 }
                 ].map((system) => (
                   <div key={system.name} className="overview-card" onClick={() => setActiveTab(system.name.toLowerCase())}>
                     <div className="card-icon" style={{ backgroundColor: system.color }}>
@@ -771,6 +808,84 @@ const MappingDetailsPage = () => {
                 ))}
               </div>
             </motion.div>
+          )}
+
+          {activeTab === "combined" && (
+          <motion.div
+  className="combined-tab"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+>
+  <div className="combined-header-row">
+    <h2>ICD-11 ↔ Traditional Medicine Mappings</h2>
+    <p className="results-count">{allData.combined.count} mapped terms</p>
+  </div>
+
+  <div className="combined-grid">
+    {getCurrentPageData(allData.combined).map((m, i) => (
+      <motion.div
+        key={m.id || i}
+        className="combined-card"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: i * 0.06 }}
+      >
+        {/* ICD-11 block */}
+        <div className="icd-block">
+          <div className="block-header">
+            <span className="sys-badge icd">ICD-11</span>
+            <span className="code">{m.code}</span>
+          </div>
+          <h3>{m.title}</h3>
+          <p className="def">{m.definition ? `${m.definition.slice(0, 120)}…` : '—'}</p>
+          <a
+            href={m.foundation_uri}
+            target="_blank"
+            rel="noreferrer"
+            className="external-link"
+          >
+            Open browser ↗
+          </a>
+        </div>
+
+        {/* Mappings row */}
+        <div className="mappings-row">
+          {['ayurveda', 'siddha', 'unani'].map(sys => (
+            <div className="map-cell" key={sys}>
+              <span className="sys-badge">{sys.charAt(0).toUpperCase() + sys.slice(1)}</span>
+              {m[`related_${sys}`] ? (
+                <>
+                  <p className="local">{m[`related_${sys}`].local_name || '—'}</p>
+                  <p className="eng">{m[`related_${sys}`].english_name}</p>
+                  <p className="code-sub">{m[`related_${sys}`].code}</p>
+                </>
+              ) : (
+                <p className="no-map">No mapping</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="card-footer">
+          {m.search_score && (
+            <span className="score">Score {(m.search_score * 100).toFixed(1)}%</span>
+          )}
+          <Link
+            to="/mapping-details"
+            state={{ mapping: m, systemType: 'combined', searchTerm: m.title }}
+            className="details-btn"
+          >
+            Full details →
+          </Link>
+        </div>
+      </motion.div>
+    ))}
+  </div>
+
+  {/* pagination stays identical */}
+  {renderPagination(allData.combined)}
+</motion.div>
           )}
 
           {activeTab === "ayurveda" && (
@@ -798,13 +913,6 @@ const MappingDetailsPage = () => {
             <motion.div className="system-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2>ICD-11 Results</h2>
               {renderSystemResults(allData?.icd11, 'ICD-11')}
-            </motion.div>
-          )}
-
-          {activeTab === "mappings" && (
-            <motion.div className="mappings-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2>Mapping Results</h2>
-              {renderMappings()}
             </motion.div>
           )}
 

@@ -96,9 +96,11 @@
   background: var(--bg-primary);
 }
 
+.error-state {
+  text-align: left; /* make text + button align left */
+}
+
 .back-btn {
-  display: inline-flex;
-  align-items: center;
   gap: .5rem;
   padding: .75rem 1.5rem;
   background: var(--bg-card);
@@ -108,7 +110,11 @@
   cursor: pointer;
   transition: all .3s ease;
   box-shadow: var(--shadow-sm);
+
+  display: inline-block; 
+  margin-top: 1rem;  
 }
+
 .back-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
@@ -317,6 +323,9 @@
   text-transform: uppercase;
   letter-spacing: .5px;
 }
+.code-badge{
+  color: white;
+}
 .system-tag {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: #fff;
@@ -400,13 +409,13 @@
   font-family: 'Fira Code', monospace;
   font-size: 1rem;                /* slightly bigger for readability */
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  color: #fff!important;
+  color: #fff;
   box-shadow: var(--shadow-sm);   /* subtle shadow for depth */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .dark .highlight-code {
   background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-  color: #fff;
+  color:white
 }
 .highlight-code:hover {
   transform: translateY(-2px);

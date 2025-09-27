@@ -12,7 +12,7 @@ import {
 } from 'firebase/auth';
 import { getDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase/config';
-
+import SystemResultsPage from './components/SystemResultsPage'; // ✅ import
 // Components
 import Header from './components/Header';
 import AuthModal from './components/AuthModal';
@@ -141,6 +141,7 @@ function App() {
             <Route path="/mapping-details" element={<MappingDetailsPage />} />
             <Route path="/profile" element={<ProfilePage user={user} />} />
              <Route path="/patient/:patientId" element={<PatientDetail />} />
+             <Route path="/system-results" element={<SystemResultsPage />} />
               <Route path="/patients" element={<PatientsPage />} />
             {/* ✅ Protected Routes */}
             <Route 
