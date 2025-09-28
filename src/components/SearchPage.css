@@ -520,7 +520,10 @@ td{
   color: white!important;
   font-style: italic;
 }
-
+.mapping-results-section h3{
+  margin-bottom: 10px;
+  padding-bottom:10px ;
+}
 .no-data {
   color: var(--text-muted);
   font-style: italic;
