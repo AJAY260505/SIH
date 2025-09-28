@@ -221,9 +221,10 @@
   border-bottom: 1px solid var(--border-color);
   background: var(--hover-bg);
 }
-
 .search-button-large {
   padding: 1rem 2rem;
+  width: 180px;
+  height: 56px;
   background: linear-gradient(135deg, #1e88e5, #42a5f5);
   color: white;
   border: none;
@@ -231,8 +232,18 @@
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: none;          /* remove scaling transitions */
   white-space: nowrap;
+  outline: none;             /* no focus ring */
+}
+
+.search-button-large:active {
+  transform: none!important;
+  outline: none!important;
+  -webkit-transform: none!important;
+  -moz-transform: none!important;
+  -ms-transform: none!important;
+  -o-transform: none!important;
 }
 
 .search-button-large:hover:not(:disabled) {
@@ -515,6 +526,8 @@ td{
   font-style: italic;
 }
 .view-details-btn {
+  width: 120px;
+  height:30px;
   padding: 0.5rem 1rem;
   background: linear-gradient(135deg, #1e88e5, #42a5f5)!important;
   color: white;

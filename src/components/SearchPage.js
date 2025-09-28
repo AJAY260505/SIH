@@ -25,6 +25,8 @@ const SearchPage = () => {
   const [results, setResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [loadingMappingId, setLoadingMappingId] = useState(null);
+
   const [hasSearched, setHasSearched] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -33,7 +35,6 @@ const SearchPage = () => {
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
-
   const API_BASE_URL = "https://ayushbandan.duckdns.org";
 
   // Theme toggle effect
@@ -245,9 +246,12 @@ const SearchPage = () => {
     }
   };
 
-  const handleRowViewDetails = (mapping) => {
-    handleViewDetails(mapping, 'mapping');
-  };
+const handleRowViewDetails = async (mapping) => {
+  setLoadingMappingId(mapping.mapping_id); // start spinner for this row
+  await handleViewDetails(mapping, 'mapping');
+  setLoadingMappingId(null); // stop spinner after navigation
+};
+
 
   const handleSystemResultClick = (result, system) => {
     handleViewDetails(result, system);
@@ -428,9 +432,7 @@ const SearchPage = () => {
                               <span className="suggestion-text">{suggestion.name}</span>
                               <span className="suggestion-type">ICD-11 Term</span>
                             </div>
-                            <span className="suggestion-confidence">
-                              {Math.round(suggestion.confidence * 100)}%
-                            </span>
+                           
                           </div>
                         ))}
                       </>
@@ -504,12 +506,7 @@ const SearchPage = () => {
               exit={{ opacity: 0, height: 0 }}
             >
               <div className="results-header">
-                <h2 className="results-title">
-                  {totalResults > 0 
-                    ? `Found ${totalResults} total results for "${searchTerm}" across all systems`
-                    : `No results found for "${searchTerm}"`
-                  }
-                </h2>
+              
                 
                 {totalResults > 0 && (
                   <div className="results-overview">
@@ -536,12 +533,12 @@ const SearchPage = () => {
                         <table className="results-table">
                           <thead>
                             <tr>
-                              <th>ICD-11 Term</th>
-                              <th>Definition</th>
+                              <th>ICD-11 code</th>
+                              <th>NAME</th>
                               <th>Ayurveda</th>
                               <th>Siddha</th>
                               <th>Unani</th>
-                              <th>Confidence</th>
+                             
                               <th>Actions</th>
                             </tr>
                           </thead>
@@ -557,18 +554,16 @@ const SearchPage = () => {
                                 <td>
                                   <div className="term-display">
                                     <div className="term-code">{mapping.source_term.code}</div>
+                                    
+                                  </div>
+                                </td>
+                                <td>
+                                  <div classname="term-display">
                                     <div className="term-name">{mapping.source_term.english_name}</div>
                                   </div>
-                                </td>
+                                  </td>
                                 
-                                <td>
-                                  <div className="definition-preview">
-                                    {mapping.icd_mapping.definition 
-                                      ? `${mapping.icd_mapping.definition.substring(0, 100)}...`
-                                      : 'No definition available'
-                                    }
-                                  </div>
-                                </td>
+                               
                                 
                                 {['ayurveda', 'siddha', 'unani'].map((system) => (
                                   <td key={system}>
@@ -586,51 +581,33 @@ const SearchPage = () => {
                                   </td>
                                 ))}
                                 
-                                <td>
-                                  <div className="confidence-display">
-                                    <div className="confidence-value">{(mapping.confidence_score * 100).toFixed(1)}%</div>
-                                    <div className="confidence-bar">
-                                      <div 
-                                        className="confidence-fill"
-                                        style={{ width: `${mapping.confidence_score * 100}%` }}
-                                      ></div>
-                                    </div>
-                                  </div>
-                                </td>
+                            
                                 
-                                <td>
-                                  <button 
-                                    className="view-details-btn"
-                                    onClick={() => handleRowViewDetails(mapping)}
-                                    title={`View details for ${mapping.source_term.english_name}`}
-                                  >
-                                    View Details
-                                  </button>
-                                </td>
+                               <td>
+  <button 
+    className="view-details-btn"
+    onClick={() => handleRowViewDetails(mapping)}
+    disabled={loadingMappingId === mapping.mapping_id}
+    title={`View details for ${mapping.source_term.english_name}`}
+  >
+    {loadingMappingId === mapping.mapping_id ? (
+      <div className="loading-spinner"></div>
+    ) : (
+      "View Details"
+    )}
+  </button>
+</td>
+
                               </motion.tr>
                             ))}
                           </tbody>
                         </table>
-                        {results.mappingResults.length > 10 && (
-                          <div className="view-more-section">
-                            <p>Showing 10 of {results.mappingResults.length} mappings</p>
-                            <button 
-                              className="view-more-btn"
-                              onClick={() => handleSystemCardClick('combined')}
-                            >
-                              View All Mappings
-                            </button>
-                          </div>
-                        )}
+                       
                       </div>
                     </div>
                   )}
 
-                  {/* Individual System Results */}
-                  {resultCounts.ayurveda > 0 && renderSystemResults(results.ayurveda, 'Ayurveda')}
-                  {resultCounts.unani > 0 && renderSystemResults(results.unani, 'Unani')}
-                  {resultCounts.siddha > 0 && renderSystemResults(results.siddha, 'Siddha')}
-                  {resultCounts.icd11 > 0 && renderSystemResults(results.icd11, 'ICD-11')}
+               
                 </div>
               ) : null}
             </motion.div>
