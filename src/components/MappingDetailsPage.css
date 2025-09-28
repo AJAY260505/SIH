@@ -323,26 +323,24 @@
   text-transform: uppercase;
   letter-spacing: .5px;
 }
+.score-badge{
+  background-color: #42a5f5!important;
+  color: white;
+}
 .code-badge{
+  background-color: #1565c0!important;
   color: white;
 }
 .system-tag {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: #0d47a1!important;
   color: #fff;
 }
 .code-tag {
-  background: var(--bg-tertiary);
+  background:  #1565c0!important;
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
-.confidence-tag {
-  background: linear-gradient(135deg, var(--accent-success), #059669);
-  color: #fff;
-}
-.similarity-tag {
-  background: linear-gradient(135deg, var(--accent-warning), #d97706);
-  color: #fff;
-}
+
 .detail-content {
   width: 100%;
   padding: 2rem;
@@ -408,14 +406,14 @@
   font-weight: 600;
   font-family: 'Fira Code', monospace;
   font-size: 1rem;                /* slightly bigger for readability */
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  color: #fff;
+  background:  #1565c0!important;
+  color: #fff!important;
   box-shadow: var(--shadow-sm);   /* subtle shadow for depth */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .dark .highlight-code {
   background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-  color:white
+  color:white!important;
 }
 .highlight-code:hover {
   transform: translateY(-2px);

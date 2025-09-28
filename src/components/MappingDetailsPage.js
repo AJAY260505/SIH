@@ -837,7 +837,7 @@ const MappingDetailsPage = () => {
             <span className="code">{m.code}</span>
           </div>
           <h3>{m.title}</h3>
-          <p className="def">{m.definition ? `${m.definition.slice(0, 120)}…` : '—'}</p>
+          <p className="def">{m.definition || '—'}</p>
           <a
             href={m.foundation_uri}
             target="_blank"
