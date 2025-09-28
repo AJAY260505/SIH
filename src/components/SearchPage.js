@@ -34,7 +34,7 @@ const SearchPage = () => {
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
 
-  const API_BASE_URL = "https://ayushbandan.duckdns.org";
+  const API_BASE_URL = "http://localhost:8000";
 
   // Theme toggle effect
   useEffect(() => {

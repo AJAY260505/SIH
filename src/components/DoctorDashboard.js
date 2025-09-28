@@ -43,7 +43,7 @@ const DoctorDashboard = () => {
         setPatients(patientsData);
 
         // Fetch mappings stats from the endpoint
-        const mappingsResponse = await fetch('https://ayushbandan.duckdns.org/terminologies/mappings/stats/');
+        const mappingsResponse = await fetch('http://localhost:8000/terminologies/mappings/stats/');
         if (mappingsResponse.ok) {
           const mappingsStats = await mappingsResponse.json();
           setMappingsData(mappingsStats);
