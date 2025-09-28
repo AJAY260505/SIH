@@ -175,29 +175,33 @@ const DoctorDashboard = () => {
         </motion.div>
 
         {/* Stats */}
-        <div className="stats-grid">
-          {[
-            { icon: "👥", label: "Total Patients", value: stats.totalPatients },
-            { icon: "🌿", label: "Ayurveda", value: stats.ayurveda },
-            { icon: "🍃", label: "Siddha", value: stats.siddha },
-            { icon: "🌱", label: "Unani ", value: stats.unani },
-            { icon: "🔗", label: "Total ", value: stats.totalMappings }
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              className="stat-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i }}
-            >
-              <div className="stat-icon">{stat.icon}</div>
-              <div className="stat-content">
-                <h3>{stat.value.toLocaleString()}</h3>
-                <p>{stat.label}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+      <div className="stats-grid">
+  {[
+    { icon: "/user.jpg", label: "Total Patients", value: stats.totalPatients },
+    { icon: "/img1.png", label: "Ayurveda", value: stats.ayurveda },
+    { icon: "/img2.png", label: "Siddha", value: stats.siddha },
+    { icon: "/img3.png", label: "Unani", value: stats.unani },
+    { icon: "/img4.png", label: "Total", value: stats.totalMappings }
+  ].map((stat, i) => (
+    <motion.div
+      key={i}
+      className="stat-card"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 * i }}
+    >
+      {/* ✅ instead of emoji, render <img> */}
+      <div className="stat-icon">
+        <img src={stat.icon} alt={stat.label} className="stat-img" />
+      </div>
+      <div className="stat-content">
+        <h3>{stat.value.toLocaleString()}</h3>
+        <p>{stat.label}</p>
+      </div>
+    </motion.div>
+  ))}
+</div>
+
 
         {/* Content */}
         <div className="dashboard-content">

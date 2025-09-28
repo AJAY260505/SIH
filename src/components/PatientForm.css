@@ -209,3 +209,100 @@
 .App.dark .prev-btn {
   border: 1px solid var(--border-color-dark);
 }
+/* ----------------------------------------------------------
+   RESPONSIVE TWEAKS – ADD AT THE END OF PatientForm.css
+---------------------------------------------------------- */
+
+/* ----------- Tablets (≤ 992 px) ----------- */
+@media (max-width: 992px) {
+  .patient-form-page {
+    padding: 1.5rem 0.75rem;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;          /* single column */
+    gap: 0.75rem;
+  }
+  .form-step h3 {
+    font-size: 1.1rem;
+  }
+  .step-indicator span {
+    font-size: 0.75rem;
+  }
+}
+
+/* ----------- Phones (≤ 768 px) ----------- */
+@media (max-width: 768px) {
+  .patient-form {
+    padding: 1.25rem;
+  }
+  .form-step h3 {
+    font-size: 1rem;
+  }
+  .form-group label {
+    font-size: 0.8rem;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.75rem;
+  }
+  .prev-btn,
+  .next-btn,
+  .submit-btn {
+    font-size: 0.85rem;
+    padding: 0.6rem 1.1rem;
+  }
+  .success-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  .success-actions .reg-another {
+    width: 100%;
+    max-width: 220px;
+  }
+
+  /* ----- step-indicator: only numbers ----- */
+  .step-indicator span {
+    display: none;               /* hide text */
+  }
+  .step-indicator span::before {
+    counter-increment: step;
+    content: counter(step);
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 50%;
+    background: var(--border-color);
+    color: #fff;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+  .step-indicator {
+    counter-reset: step;
+    justify-content: space-around;
+  }
+  .step-indicator span.active::before {
+    background: #42a5f5;
+  }
+}
+
+/* ----------- Very small phones (≤ 480 px) ----------- */
+@media (max-width: 480px) {
+  .form-header h2 {
+    font-size: 1.25rem;
+  }
+  .step-indicator span::before {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 0.75rem;
+  }
+}
+.error-text {
+  color: #e53935;        /* bright red */
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
