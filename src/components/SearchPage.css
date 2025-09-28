@@ -224,7 +224,8 @@
 .search-button-large {
   padding: 1rem 2rem;
   width: 180px;
-  height: 56px;
+  height: 60px;
+  padding-bottom: 5px;
   background: linear-gradient(135deg, #1e88e5, #42a5f5);
   color: white;
   border: none;
@@ -503,10 +504,12 @@
 td{
   color: white;
 }
-
+.dark .term-code{
+  color: white;
+}
 .term-code {
   font-weight: 600;
-  color: white;
+  color: black;
   font-size: 0.9rem;
 }
 
