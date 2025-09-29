@@ -80,7 +80,7 @@ const HeroSection = () => {
               color: 'white'
             }}
           >
-            FEHR
+            FHIR
           </motion.div>
           <div className="flow-arrow">→</div>
           <motion.div
