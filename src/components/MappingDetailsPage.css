@@ -946,6 +946,210 @@
   }
 }
 
+/* ----------------------------------------------------------
+   COMBINED SEARCH RESULTS – clean card layout
+---------------------------------------------------------- */
+
+.combined-tab h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 1.25rem;
+    color: var(--text-primary);
+}
+
+.combined-results {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* single result card */
+.combined-card.detailed {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.combined-card.detailed:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* header row */
+.combined-header {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-bottom: 1rem;
+}
+
+.combined-header h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.combined-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.code-badge,
+.score-badge {
+    padding: .35rem .75rem;
+    border-radius: 50px;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+
+.code-badge {
+    background: var(--accent-primary);
+    color: #fff;
+}
+
+.score-badge {
+    background: var(--accent-success);
+    color: #fff;
+}
+
+/* two-column body on desktop */
+.combined-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .combined-content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* sections */
+.icd-section,
+.mappings-section,
+.mapping-info-section {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.icd-section h5,
+.mappings-section h5,
+.mapping-info-section h5 {
+    margin: 0 0 .75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.definition-section p {
+    margin: .5rem 0 0;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.icd-meta {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-top: .75rem;
+    font-size: .85rem;
+}
+
+.icd-meta span {
+    color: var(--text-tertiary);
+}
+
+.icd-meta a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.icd-meta a:hover {
+    text-decoration: underline;
+}
+
+/* mapping grid */
+.mapping-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: .75rem;
+}
+
+.mapping-item {
+    background: var(--bg-primary);
+    padding: .75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+    text-align: center;
+}
+
+.mapping-item h6 {
+    margin: 0 0 .5rem;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text-tertiary);
+}
+
+.mapping-details p {
+    margin: .25rem 0;
+    font-size: .8rem;
+    color: var(--text-secondary);
+}
+
+.no-mapping {
+    font-size: .8rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* mapping info bar */
+.mapping-info-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: .85rem;
+}
+
+.mapping-info-grid span {
+    background: var(--bg-primary);
+    padding: .5rem .75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+}
+
+/* footer button */
+.view-full-details-btn {
+    margin-top: 1rem;
+    padding: .75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.view-full-details-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ----------------------------------------------------------
+   end Combined Search Results
+---------------------------------------------------------- */
 /* Large Desktop Styles */
 @media (min-width: 1440px) {
   .container {

@@ -272,7 +272,7 @@
 
 /* Left Image */
 .hero-image-left {
-  left: 0.5rem;
+  left: -2rem;
   top: 20px;
 }
 .hero-image-left img {
