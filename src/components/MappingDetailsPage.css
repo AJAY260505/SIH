@@ -1146,7 +1146,11 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
-
+.detailed-tab {
+    max-width: none;     /* remove the 1400 px cap */
+    width: 100%;
+    padding: 1.5rem 0;   /* optional – reduce side padding if you want */
+}
 /* ----------------------------------------------------------
    end Combined Search Results
 ---------------------------------------------------------- */

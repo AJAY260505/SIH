@@ -46,6 +46,10 @@ const SearchPage = () => {
   // Progressive loading states
   const [loadingProgress, setLoadingProgress] = useState({
     combined: false,
+    ayurveda: false,
+    unani: false,
+    siddha: false,
+    icd11: false,
     suggestions: false
   });
 
@@ -99,7 +103,7 @@ const SearchPage = () => {
     
     if (searchStrategy.fuzzy) {
       params.append('fuzzy', 'true');
-      params.append('threshold', '0.4'); // Increased threshold for faster, more relevant results
+      params.append('threshold', '0.3'); // Increased threshold for faster, more relevant results
     }
     
     if (searchStrategy.fullText) {
@@ -107,12 +111,12 @@ const SearchPage = () => {
     }
     
     // Reduced page size for faster initial load
-    params.append('page_size', '15');
+    params.append('page_size', endpoint === 'combined' ? '20' : '15');
     
     return `${baseUrl}&${params.toString()}`;
   };
 
-  // Ultra-fast suggestions fetch with minimal data
+  // Fast suggestions fetch with minimal data
   const fetchSuggestions = async (term) => {
     if (!term || term.length < 2) {
       setSuggestions([]);
@@ -123,8 +127,8 @@ const SearchPage = () => {
     try {
       setLoadingProgress(prev => ({ ...prev, suggestions: true }));
       
-      // Use minimal parameters for fastest response
-      const url = `${API_BASE_URL}/terminologies/search/combined/?q=${encodeURIComponent(term)}&fuzzy=true&threshold=0.5&page_size=5`;
+      // Use a faster endpoint with minimal data
+      const url = `${API_BASE_URL}/terminologies/search/combined/?q=${encodeURIComponent(term)}&fuzzy=true&threshold=0.4&page_size=8`;
       const data = await fetchData(url);
 
       if (data && data.results) {
@@ -138,7 +142,6 @@ const SearchPage = () => {
         }));
 
         setSuggestions(allSuggestions);
-        // Set recommendations immediately from first 3 results
         setRecommendations(allSuggestions.slice(0, 3));
       }
     } catch (error) {
@@ -150,7 +153,7 @@ const SearchPage = () => {
     }
   };
 
-  // Optimized search - only load combined data
+  // Optimized progressive search with prioritized loading
   const performSearch = async ({ term = searchTerm, system = selectedSystem, confidence = minConfidence } = {}) => {
     if (!term || !term.trim()) return;
 
@@ -159,11 +162,15 @@ const SearchPage = () => {
     // Initialize results structure immediately
     setResults({
       combined: { results: [] },
+      ayurveda: { results: [] },
+      unani: { results: [] },
+      siddha: { results: [] },
+      icd11: { results: [] },
       mappingResults: []
     });
 
     try {
-      // Load only combined data for maximum speed
+      // Phase 1: Load combined data first (highest priority)
       setLoadingProgress(prev => ({ ...prev, combined: true }));
       const combinedUrl = buildSearchUrl(term, 'combined');
       const combinedData = await fetchData(combinedUrl);
@@ -204,17 +211,49 @@ const SearchPage = () => {
         search_score: item.search_score
       })) : [];
 
-      setResults({
+      setResults(prev => ({
+        ...prev,
         combined: combinedData || { results: [] },
         mappingResults
-      });
+      }));
       setLoadingProgress(prev => ({ ...prev, combined: false }));
       setHasSearched(true);
+
+      // Phase 2: Load ICD-11 data (second priority)
+      setLoadingProgress(prev => ({ ...prev, icd11: true }));
+      const icd11Url = buildSearchUrl(term, 'icd11');
+      const icd11Data = await fetchData(icd11Url);
+      setResults(prev => ({
+        ...prev,
+        icd11: icd11Data || { results: [] }
+      }));
+      setLoadingProgress(prev => ({ ...prev, icd11: false }));
+
+      // Phase 3: Load traditional medicine systems in parallel but update individually
+      const traditionalSystems = [
+        { key: 'ayurveda', url: `${API_BASE_URL}/terminologies/ayurveda/search/?q=${encodeURIComponent(term)}&threshold=0.2&page_size=12` },
+        { key: 'unani', url: `${API_BASE_URL}/terminologies/unani/search/?q=${encodeURIComponent(term)}&threshold=0.2&page_size=12` },
+        { key: 'siddha', url: `${API_BASE_URL}/terminologies/siddha/search/?q=${encodeURIComponent(term)}&threshold=0.2&page_size=12` }
+      ];
+
+      traditionalSystems.forEach(async (system) => {
+        setLoadingProgress(prev => ({ ...prev, [system.key]: true }));
+        const systemData = await fetchData(system.url);
+        setResults(prev => ({
+          ...prev,
+          [system.key]: systemData || { results: [] }
+        }));
+        setLoadingProgress(prev => ({ ...prev, [system.key]: false }));
+      });
 
     } catch (error) {
       console.error("Search error:", error);
       setResults({ 
         combined: { results: [] },
+        ayurveda: { results: [] },
+        unani: { results: [] },
+        siddha: { results: [] },
+        icd11: { results: [] },
         mappingResults: [] 
       });
     } finally {
@@ -233,7 +272,7 @@ const SearchPage = () => {
     if (!hasSearched) return;
     if (!searchTerm || !searchTerm.trim()) return;
 
-    const debounceMs = 500; // Increased debounce for better performance
+    const debounceMs = 400; // Increased debounce for better performance
     const timer = setTimeout(() => {
       performSearch({ term: searchTerm, system: selectedSystem, confidence: minConfidence });
     }, debounceMs);
@@ -250,7 +289,7 @@ const SearchPage = () => {
         setSuggestions([]);
         setRecommendations([]);
       }
-    }, 100); // Reduced debounce for faster suggestions
+    }, 150); // Reduced debounce for faster suggestions
 
     return () => clearTimeout(debounceTimer);
   }, [searchTerm]);
@@ -259,7 +298,7 @@ const SearchPage = () => {
   const handleViewDetails = async (mapping, systemType = 'combined') => {
     const specificTerm = mapping.source_term?.english_name || mapping.title || mapping.english_name || searchTerm;
     
-    // Navigate immediately with available data
+    // Navigate immediately with available data, fetch detailed data in background
     navigate('/mapping-details', { 
       state: { 
         mapping, 
@@ -282,6 +321,10 @@ const SearchPage = () => {
     setLoadingMappingId(null);
   };
 
+  const handleSystemResultClick = (result, system) => {
+    handleViewDetails(result, system);
+  };
+
   const handleSuggestionClick = (suggestion) => {
     setSearchTerm(suggestion.name);
     setShowSuggestions(false);
@@ -292,13 +335,121 @@ const SearchPage = () => {
     navigate(`/${system}`);
   };
 
-  // Get result count - only combined now
-  const getResultCount = () => {
-    if (!results) return 0;
-    return results.combined?.results?.length || 0;
+  // Get result counts for overview
+  const getResultCounts = () => {
+    if (!results) return { combined: 0, ayurveda: 0, unani: 0, siddha: 0, icd11: 0 };
+    
+    return {
+      combined: results.combined?.results?.length || 0,
+      ayurveda: results.ayurveda?.results?.length || results.ayurveda?.count || 0,
+      unani: results.unani?.results?.length || results.unani?.count || 0,
+      siddha: results.siddha?.results?.length || results.siddha?.count || 0,
+      icd11: results.icd11?.results?.length || results.icd11?.count || 0
+    };
   };
 
-  const totalResults = getResultCount();
+  const resultCounts = getResultCounts();
+  const totalResults = Object.values(resultCounts).reduce((sum, count) => sum + count, 0);
+
+  // Optimized system results renderer with loading states
+  const renderSystemResults = (systemData, systemName) => {
+    const isLoading = loadingProgress[systemName.toLowerCase()];
+
+    if (isLoading) {
+      return (
+        <div className="loading-section">
+          <div className="spinner-small"></div>
+          <p>Loading {systemName} data...</p>
+        </div>
+      );
+    }
+
+    if (!systemData?.results?.length) {
+      return (
+        <div className="no-results">
+          <p>No {systemName} data available for "{searchTerm}".</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="system-results-section">
+        <h3>{systemName} Results ({systemData.results.length})</h3>
+        <div className="table-container">
+          <table className="results-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>English Name</th>
+                {systemName === 'Ayurveda' && <th>Hindi Name</th>}
+                {systemName === 'Ayurveda' && <th>Diacritical Name</th>}
+                {systemName === 'Unani' && <th>Arabic Name</th>}
+                {systemName === 'Unani' && <th>Romanized Name</th>}
+                {systemName === 'Siddha' && <th>Tamil Name</th>}
+                {systemName === 'Siddha' && <th>Romanized Name</th>}
+                {systemName === 'ICD-11' && <th>Class Kind</th>}
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {systemData.results.slice(0, 8).map((result, index) => ( // Reduced initial display
+                <motion.tr 
+                  key={result.id || index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.03 }} // Faster animation
+                  className="result-row"
+                >
+                  <td>{result.code || "N/A"}</td>
+                  <td className="term-name">{result.english_name || result.title || "N/A"}</td>
+                  {systemName === 'Ayurveda' && (
+                    <>
+                      <td>{result.hindi_name || "-"}</td>
+                      <td>{result.diacritical_name || "-"}</td>
+                    </>
+                  )}
+                  {systemName === 'Unani' && (
+                    <>
+                      <td>{result.arabic_name || "-"}</td>
+                      <td>{result.romanized_name || "-"}</td>
+                    </>
+                  )}
+                  {systemName === 'Siddha' && (
+                    <>
+                      <td>{result.tamil_name || "-"}</td>
+                      <td>{result.romanized_name || "-"}</td>
+                    </>
+                  )}
+                  {systemName === 'ICD-11' && (
+                    <td>{result.class_kind || "-"}</td>
+                  )}
+                  <td>
+                    <button 
+                      className="view-details-btn"
+                      onClick={() => handleSystemResultClick(result, systemName.toLowerCase())}
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+          {systemData.results.length > 8 && (
+            <div className="view-more-section">
+              <p>Showing 8 of {systemData.results.length} results</p>
+              <button 
+                className="view-more-btn"
+                onClick={() => handleSystemCardClick(systemName.toLowerCase())}
+              >
+                View All {systemName} Results
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="search-page">
@@ -355,7 +506,7 @@ const SearchPage = () => {
                     ) : suggestions.length > 0 ? (
                       <>
                         <div className="dropdown-label">Search Suggestions</div>
-                        {suggestions.slice(0, 5).map((suggestion, index) => ( // Limit suggestions for faster render
+                        {suggestions.slice(0, 6).map((suggestion, index) => ( // Limit suggestions for faster render
                           <div
                             key={index}
                             className="suggestion-item"
@@ -365,9 +516,6 @@ const SearchPage = () => {
                               <span className="suggestion-text">{suggestion.name}</span>
                               <span className="suggestion-type">ICD-11 Term</span>
                             </div>
-                            <span className="suggestion-confidence">
-                              {Math.round(suggestion.confidence * 100)}%
-                            </span>
                           </div>
                         ))}
                       </>
@@ -475,10 +623,14 @@ const SearchPage = () => {
                 {totalResults > 0 && (
                   <div className="results-overview">
                     <div className="results-summary">
-                      <span className="system-count">
-                        Found {totalResults} results
-                        {loadingProgress.combined && <span className="loading-dot"></span>}
-                      </span>
+                      {Object.entries(resultCounts).map(([system, count]) => (
+                        count > 0 && (
+                          <span key={system} className={`system-count ${loadingProgress[system] ? 'loading' : ''}`}>
+                            {system.charAt(0).toUpperCase() + system.slice(1)}: {count}
+                            {loadingProgress[system] && <span className="loading-dot"></span>}
+                          </span>
+                        )
+                      ))}
                     </div>
                   </div>
                 )}
@@ -511,12 +663,12 @@ const SearchPage = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {results.mappingResults.slice(0, 10).map((mapping, index) => ( // Show more results since we're faster
+                            {results.mappingResults.slice(0, 8).map((mapping, index) => ( // Reduced initial display
                               <motion.tr 
                                 key={mapping.mapping_id || index}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                transition={{ delay: index * 0.02 }} // Faster animation
+                                transition={{ delay: index * 0.03 }} // Faster animation
                                 className="result-row"
                               >
                                 <td>
@@ -527,11 +679,6 @@ const SearchPage = () => {
                                 <td>
                                   <div className="term-display">
                                     <div className="term-name">{mapping.source_term.english_name}</div>
-                                    {mapping.icd_mapping.definition && (
-                                      <div className="term-definition-preview">
-                                        {mapping.icd_mapping.definition.substring(0, 80)}...
-                                      </div>
-                                    )}
                                   </div>
                                 </td>
                                 
@@ -569,9 +716,9 @@ const SearchPage = () => {
                             ))}
                           </tbody>
                         </table>
-                        {results.mappingResults.length > 10 && (
+                        {results.mappingResults.length > 8 && (
                           <div className="view-more-section">
-                            <p>Showing 10 of {results.mappingResults.length} mappings</p>
+                            <p>Showing 8 of {results.mappingResults.length} mappings</p>
                             <button 
                               className="view-more-btn"
                               onClick={() => performSearch({ term: searchTerm })}
