@@ -37,6 +37,12 @@ const SearchPage = () => {
   const suggestionsRef = useRef(null);
   const API_BASE_URL = "https://ayushbandan.duckdns.org";
 
+  // Search strategy state
+  const [searchStrategy, setSearchStrategy] = useState({
+    fuzzy: true,
+    fullText: false
+  });
+
   // Theme toggle effect
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -65,6 +71,40 @@ const SearchPage = () => {
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
+  // Toggle search strategies
+  const toggleSearchStrategy = (strategy) => {
+    if (strategy === 'fuzzy') {
+      setSearchStrategy(prev => ({
+        fuzzy: !prev.fuzzy,
+        fullText: prev.fuzzy ? prev.fullText : false // Ensure at least one is selected
+      }));
+    } else if (strategy === 'fullText') {
+      setSearchStrategy(prev => ({
+        fuzzy: prev.fullText ? prev.fuzzy : false, // Ensure at least one is selected
+        fullText: !prev.fullText
+      }));
+    }
+  };
+
+  // Build search URL based on active strategies
+  const buildSearchUrl = (term, endpoint = 'combined') => {
+    const baseUrl = `${API_BASE_URL}/terminologies/search/${endpoint}/?q=${encodeURIComponent(term)}`;
+    const params = new URLSearchParams();
+    
+    if (searchStrategy.fuzzy) {
+      params.append('fuzzy', 'true');
+      params.append('threshold', '0.2');
+    }
+    
+    if (searchStrategy.fullText) {
+      params.append('use_fts', 'true');
+    }
+    
+    params.append('page_size', '50');
+    
+    return `${baseUrl}&${params.toString()}`;
+  };
+
   // Fetch autocomplete suggestions using combined search
   const fetchSuggestions = async (term) => {
     if (!term || term.length < 2) {
@@ -74,9 +114,8 @@ const SearchPage = () => {
     }
 
     try {
-      const data = await fetchData(
-        `${API_BASE_URL}/terminologies/search/combined/?q=${encodeURIComponent(term)}&fuzzy=true&threshold=0.2&page_size=5`
-      );
+      const url = buildSearchUrl(term);
+      const data = await fetchData(url);
 
       if (data && data.results) {
         const allSuggestions = data.results.map((item, index) => ({
@@ -104,13 +143,22 @@ const SearchPage = () => {
 
     setIsSearching(true);
     try {
+      // Build URLs with search strategies
+      const urls = [
+        buildSearchUrl(term, 'combined'),
+        `${API_BASE_URL}/terminologies/ayurveda/search/?q=${encodeURIComponent(term)}&threshold=0.1`,
+        `${API_BASE_URL}/terminologies/unani/search/?q=${encodeURIComponent(term)}&threshold=0.1`,
+        `${API_BASE_URL}/terminologies/siddha/search/?q=${encodeURIComponent(term)}&threshold=0.1`,
+        buildSearchUrl(term, 'icd11')
+      ];
+
       // Fetch data from all endpoints
       const [combinedData, ayurvedaData, unaniData, siddhaData, icd11Data] = await Promise.all([
-        fetchData(`${API_BASE_URL}/terminologies/search/combined/?q=${encodeURIComponent(term)}&fuzzy=true&threshold=0.2&page_size=50`),
-        fetchData(`${API_BASE_URL}/terminologies/ayurveda/search/?q=${encodeURIComponent(term)}&threshold=0.1`),
-        fetchData(`${API_BASE_URL}/terminologies/unani/search/?q=${encodeURIComponent(term)}&threshold=0.1`),
-        fetchData(`${API_BASE_URL}/terminologies/siddha/search/?q=${encodeURIComponent(term)}&threshold=0.1`),
-        fetchData(`${API_BASE_URL}/terminologies/icd11/search/?q=${encodeURIComponent(term)}&fuzzy=true&threshold=0.2&page_size=50`)
+        fetchData(urls[0]),
+        fetchData(urls[1]),
+        fetchData(urls[2]),
+        fetchData(urls[3]),
+        fetchData(urls[4])
       ]);
 
       // Transform all data into a unified structure
@@ -174,6 +222,7 @@ const SearchPage = () => {
     }
   };
 
+  
   const handleSearch = async (e) => {
     e.preventDefault();
     setShowSuggestions(false);
@@ -190,7 +239,7 @@ const SearchPage = () => {
     }, debounceMs);
 
     return () => clearTimeout(timer);
-  }, [selectedSystem, minConfidence]);
+  }, [selectedSystem, minConfidence, searchStrategy]);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -198,27 +247,41 @@ const SearchPage = () => {
     }, 200);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm]);
+  }, [searchTerm, searchStrategy]);
 
   const handleViewDetails = async (mapping, systemType = 'combined') => {
     setIsSearching(true);
     const specificTerm = mapping.source_term?.english_name || mapping.title || mapping.english_name || searchTerm;
     
     try {
+      // Build URLs with current search strategies for detailed view
+      const urls = [
+        buildSearchUrl(specificTerm, 'combined'),
+        `${API_BASE_URL}/terminologies/ayurveda/search/?q=${encodeURIComponent(specificTerm)}&threshold=0.1`,
+        `${API_BASE_URL}/terminologies/unani/search/?q=${encodeURIComponent(specificTerm)}&threshold=0.1`,
+        `${API_BASE_URL}/terminologies/siddha/search/?q=${encodeURIComponent(specificTerm)}&threshold=0.1`,
+        buildSearchUrl(specificTerm, 'icd11')
+      ];
+
       // Fetch comprehensive data for detailed view
       const [combinedData, ayurvedaData, unaniData, siddhaData, icd11Data] = await Promise.all([
-        fetchData(`${API_BASE_URL}/terminologies/search/combined/?q=${encodeURIComponent(specificTerm)}&fuzzy=true&threshold=0.2&page_size=20`),
-        fetchData(`${API_BASE_URL}/terminologies/ayurveda/search/?q=${encodeURIComponent(specificTerm)}&threshold=0.1`),
-        fetchData(`${API_BASE_URL}/terminologies/unani/search/?q=${encodeURIComponent(specificTerm)}&threshold=0.1`),
-        fetchData(`${API_BASE_URL}/terminologies/siddha/search/?q=${encodeURIComponent(specificTerm)}&threshold=0.1`),
-        fetchData(`${API_BASE_URL}/terminologies/icd11/search/?q=${encodeURIComponent(specificTerm)}&fuzzy=true&threshold=0.2&page_size=20`)
+        fetchData(urls[0]),
+        fetchData(urls[1]),
+        fetchData(urls[2]),
+        fetchData(urls[3]),
+        fetchData(urls[4])
       ]);
 
       navigate('/mapping-details', { 
         state: { 
           mapping, 
           systemType,
-          searchParams: { system: selectedSystem, query: specificTerm, min_confidence: minConfidence },
+          searchParams: { 
+            system: selectedSystem, 
+            query: specificTerm, 
+            min_confidence: minConfidence,
+            search_strategy: searchStrategy 
+          },
           additionalData: { 
             combined: combinedData,
             ayurveda: ayurvedaData, 
@@ -236,7 +299,12 @@ const SearchPage = () => {
         state: { 
           mapping, 
           systemType,
-          searchParams: { system: selectedSystem, query: specificTerm, min_confidence: minConfidence },
+          searchParams: { 
+            system: selectedSystem, 
+            query: specificTerm, 
+            min_confidence: minConfidence,
+            search_strategy: searchStrategy
+          },
           searchTerm: specificTerm,
           source: 'comprehensive-search'
         } 
@@ -246,12 +314,11 @@ const SearchPage = () => {
     }
   };
 
-const handleRowViewDetails = async (mapping) => {
-  setLoadingMappingId(mapping.mapping_id); // start spinner for this row
-  await handleViewDetails(mapping, 'mapping');
-  setLoadingMappingId(null); // stop spinner after navigation
-};
-
+  const handleRowViewDetails = async (mapping) => {
+    setLoadingMappingId(mapping.mapping_id); // start spinner for this row
+    await handleViewDetails(mapping, 'mapping');
+    setLoadingMappingId(null); // stop spinner after navigation
+  };
 
   const handleSystemResultClick = (result, system) => {
     handleViewDetails(result, system);
@@ -476,22 +543,36 @@ const handleRowViewDetails = async (mapping) => {
             </motion.button>
           </div>
 
+          {/* Search Strategy Filters */}
           <div className="filters-container">
             <div className="filter-group">
-              <label className="filter-label">Search Scope</label>
+              <label className="filter-label">Search Strategy</label>
               <div className="filter-buttons">
-                {['all', 'combined', 'ayurveda', 'siddha', 'unani', 'icd11'].map((system) => (
-                  <button 
-                    key={system}
-                    type="button"
-                    className={`filter-btn ${selectedSystem === system ? 'active' : ''}`}
-                    onClick={() => setSelectedSystem(system)}
-                  >
-                    {system === 'all' ? 'All Systems' : 
-                     system === 'combined' ? 'ICD-11 Mappings' :
-                     system.charAt(0).toUpperCase() + system.slice(1)}
-                  </button>
-                ))}
+                <button 
+                  type="button"
+                  className={`filter-btn ${searchStrategy.fuzzy ? 'active' : ''}`}
+                  onClick={() => toggleSearchStrategy('fuzzy')}
+                >
+                  Fuzzy Search
+                </button>
+                <button 
+                  type="button"
+                  className={`filter-btn ${searchStrategy.fullText ? 'active' : ''}`}
+                  onClick={() => toggleSearchStrategy('fullText')}
+                >
+                  Full-Text Search
+                </button>
+              </div>
+              <div className="search-strategy-info">
+                {searchStrategy.fuzzy && searchStrategy.fullText ? (
+                  <span className="strategy-info-text">Using both Fuzzy and Full-Text search</span>
+                ) : searchStrategy.fuzzy ? (
+                  <span className="strategy-info-text">Using Fuzzy search with trigram similarity</span>
+                ) : searchStrategy.fullText ? (
+                  <span className="strategy-info-text">Using Full-Text search with search vector</span>
+                ) : (
+                  <span className="strategy-info-text warning">Please select at least one search strategy</span>
+                )}
               </div>
             </div>
           </div>
@@ -506,7 +587,14 @@ const handleRowViewDetails = async (mapping) => {
               exit={{ opacity: 0, height: 0 }}
             >
               <div className="results-header">
-              
+                <div className="active-strategies">
+                  {searchStrategy.fuzzy && (
+                    <span className="strategy-badge fuzzy">Fuzzy Search</span>
+                  )}
+                  {searchStrategy.fullText && (
+                    <span className="strategy-badge fulltext">Full-Text Search</span>
+                  )}
+                </div>
                 
                 {totalResults > 0 && (
                   <div className="results-overview">

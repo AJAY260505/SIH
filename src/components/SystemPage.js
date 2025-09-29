@@ -25,6 +25,7 @@ const SystemPage = ({ systemName }) => {
   const [suggPage, setSuggPage] = useState(1);
   const [uploading, setUploading] = useState(false);
   const [uploadRes, setUploadRes] = useState(null);
+  const [isAboutVisible, setIsAboutVisible] = useState(true); // Force visibility
   const resultsPerPage = 10;
   const suggPerPage = 10;
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const SystemPage = ({ systemName }) => {
   const fileInputRef = useRef(null);
   const suggestionsRef = useRef(null);
   const dropdownRef = useRef(null);
+  const aboutSectionRef = useRef(null);
 
   // Current user state
   const [currentUser, setCurrentUser] = useState(null);
@@ -44,6 +46,18 @@ const SystemPage = ({ systemName }) => {
     });
     return unsub;
   }, []);
+
+  // Force About section to be visible on mount and when system changes
+  useEffect(() => {
+    setIsAboutVisible(true);
+    // Ensure About section is in view after render
+    setTimeout(() => {
+      if (aboutSectionRef.current) {
+        aboutSectionRef.current.style.opacity = '1';
+        aboutSectionRef.current.style.visibility = 'visible';
+      }
+    }, 100);
+  }, [systemName]);
 
   // Admin check - only allow specific admin user
   const isAdmin = currentUser?.displayName === 'root' && currentUser?.email === 'root@gmail.com';
@@ -549,8 +563,18 @@ const SystemPage = ({ systemName }) => {
           </motion.div>
         )}
 
-        {/* about / benefits */}
-        <motion.div className="system-info-content" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 0.8 }} viewport={{ once: true }}>
+        {/* about / benefits - ALWAYS VISIBLE */}
+        <motion.div 
+          ref={aboutSectionRef}
+          className="system-info-content always-visible"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          style={{ 
+            opacity: isAboutVisible ? 1 : 0,
+            visibility: isAboutVisible ? 'visible' : 'hidden'
+          }}
+        >
           <h3>About {system.title}</h3>
           <p>{system.about}</p>
 

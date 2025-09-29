@@ -1,5 +1,5 @@
 /* ==========================================================
-   SystemPage.css  –  COMPLETE  (light + dark)
+   SystemPage.css  –  COMPLETE RESPONSIVE (light + dark)
    ========================================================== */
 
 /* ---------- 1.  TOKENS (light default) ---------- */
@@ -63,74 +63,103 @@
 
 /* ---------- 3.  PAGE SHELL  ---------- */
 .system-page {
-  padding: 2rem 0 4rem;
+  padding: 1rem 0.5rem 2rem;
   background: var(--bg-primary);
   color: var(--text-primary);
   transition: background .3s, color .3s;
+  min-height: 100vh;
 }
 
 .containers {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
 }
 
-/* ---------- 4.  HEADER  ---------- */
+/* ---------- 4.  HEADER - RESPONSIVE ---------- */
 .system-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  margin-bottom: 3rem;
+  text-align: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
 }
+
 .system-icon-large {
-  font-size: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+.system-icon-large img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  border-radius: 50px;
+}
+
 .system-info h2 {
   color: var(--text-primary);
   margin-bottom: 0.5rem;
-}
-.system-info p {
-  color: var(--text-secondary);
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
-/* ---------- 5.  SEARCH BAR  ---------- */
+.system-info p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---------- 5.  SEARCH BAR - RESPONSIVE ---------- */
 .search-forms {
   display: flex;
-  width: 80%;
-  margin: 0 auto 30px;
+  width: 100%;
+  margin: 0 auto 1.5rem;
   box-shadow: var(--shadow-md);
   border-radius: var(--radius-lg);
-  overflow: visible; /* CHANGED: Allow dropdown to overflow */
+  overflow: visible;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  position: relative; /* ADDED: For proper dropdown positioning */
+  position: relative;
 }
+
 .search-input-container {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
   flex: 1;
-  position: relative; /* ADDED: For dropdown positioning */
+  position: relative;
+  padding: 0.75rem;
 }
+
 .autocomplete-wrapper {
   position: relative;
-  flex: 1;
+  width: 100%;
 }
+
 .search-inputs {
   width: 100%;
-  padding: 1rem 1.5rem;
-  font-size: 1.1rem;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
   border: 2px solid var(--accent-primary);
   border-radius: var(--radius-md);
   outline: none;
   background: var(--bg-card);
   color: var(--text-primary);
   transition: all .3s;
+  box-sizing: border-box;
 }
+
 .search-inputs:focus {
   box-shadow: 0 0 0 3px rgba(66, 165, 245, .25);
 }
 
-/* ---------- 6.  AUTOCOMPLETE DROPDOWN - FIXED VISIBILITY ---------- */
+/* ---------- 6.  AUTOCOMPLETE DROPDOWN - RESPONSIVE ---------- */
 .suggestions-dropdown {
   position: absolute;
   top: 100%;
@@ -140,8 +169,8 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  z-index: 10000; /* INCREASED: Ensure it's above everything */
-  max-height: 320px;
+  z-index: 10000;
+  max-height: 300px;
   overflow-y: auto;
   margin-top: 4px;
   display: block !important;
@@ -150,59 +179,32 @@
 }
 
 .suggestion-item {
-  padding: .75rem 1rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
   border-bottom: 1px solid var(--border-light);
   color: var(--text-primary);
   transition: background .2s;
+  font-size: 0.9rem;
 }
+
 .suggestion-item:hover {
   background: var(--bg-secondary);
 }
+
 .suggestion-text {
   font-weight: 600;
 }
 
 /* Enhanced pagination for suggestions */
-.sugg-pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: .75rem 1rem;
+.sugg-pagination-info {
+  padding: 0.75rem 1rem;
   border-top: 1px solid var(--border-light);
   background: var(--bg-secondary);
-  position: sticky;
-  bottom: 0;
-}
-.sugg-pagination button {
-  background: var(--accent-primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: .4rem .8rem;
-  cursor: pointer;
-  font-size: .85rem;
-  transition: background .2s;
-}
-.sugg-pagination button:hover:not(:disabled) {
-  background: var(--accent-secondary);
-}
-.sugg-pagination button:disabled {
-  background: var(--text-muted);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-.sugg-pagination-info {
-  font-size: .8rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  text-align: center;
 }
-.sugg-pagination-numbers {
-  display: flex;
-  gap: 0.25rem;
-}
+
 .sugg-page-btn {
   padding: 0.2rem 0.5rem;
   border: 1px solid var(--border-color);
@@ -210,7 +212,9 @@
   background: var(--bg-card);
   cursor: pointer;
   font-size: 0.75rem;
+  margin: 0 0.1rem;
 }
+
 .sugg-page-btn.active {
   background: var(--accent-primary);
   color: white;
@@ -223,76 +227,117 @@
   text-align: center;
   color: var(--text-muted);
   font-style: italic;
+  font-size: 0.9rem;
 }
+
 .suggestions-empty {
   padding: 1rem;
   text-align: center;
   color: var(--text-muted);
   font-style: italic;
+  font-size: 0.9rem;
 }
 
-/* ---------- 7.  CSV UPLOAD  ---------- */
+/* ---------- 7.  CSV UPLOAD - RESPONSIVE ---------- */
 .upload-group {
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
 }
+
 .upload-icon {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   cursor: pointer;
   transition: transform .3s;
+  opacity: 1;
 }
+
 .upload-icon:hover {
   transform: scale(1.1);
 }
+
+.upload-icon.checking {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.upload-icon.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .upload-icon.uploading {
   animation: pulse .6s infinite;
+  opacity: 0.7;
 }
+
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
+
 .upload-feedback {
   margin: 1rem 0;
-  font-size: .95rem;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
 }
+
 .upload-error {
   color: var(--accent-error);
+  background: rgba(220, 53, 69, 0.1);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
 }
+
 .upload-success {
   display: inline-flex;
   align-items: center;
-  gap: .5rem;
+  gap: 0.5rem;
   color: var(--accent-success);
-}
-.success-tick {
-  width: 20px;
-  height: 20px;
+  background: rgba(25, 135, 84, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
 }
 
-/* ---------- 8.  SEARCH BUTTON  ---------- */
+.success-tick {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- 8.  SEARCH BUTTON - RESPONSIVE ---------- */
 .search-buttons {
-  padding: 0 30px;
+  padding: 0.875rem 1.5rem;
   border: none;
   background: var(--accent-primary);
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all .3s;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-radius: var(--radius-md);
+  width: 100%;
+  min-height: 50px;
 }
-.search-buttons:hover {
+
+.search-buttons:hover:not(:disabled) {
   background: var(--accent-secondary);
+  transform: translateY(-2px);
 }
+
 .search-buttons:disabled {
   background: #bdc3c7;
   cursor: not-allowed;
+  transform: none;
 }
+
 .loading-spinner {
   width: 20px;
   height: 20px;
@@ -301,11 +346,30 @@
   border-top-color: white;
   animation: spin 1s ease-in-out infinite;
 }
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* ---------- 9.  RESULTS TABLE  ---------- */
+/* ---------- 9.  RESULTS TABLE - RESPONSIVE ---------- */
+.system-results {
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.system-results h3 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.system-results h3 small {
+  font-weight: 400;
+  display: block;
+  margin-top: 0.25rem;
+}
+
 .mapping-table-container {
   width: 100%;
   overflow-x: auto;
@@ -314,100 +378,299 @@
   box-shadow: var(--shadow-md);
   background: var(--bg-card);
   border: 1px solid var(--border-color);
+  -webkit-overflow-scrolling: touch;
 }
+
 .mapping-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
+  min-width: 600px;
 }
+
 .mapping-table thead {
   background: linear-gradient(90deg, var(--bg-tertiary), var(--bg-secondary));
 }
+
 .mapping-table th,
 .mapping-table td {
   text-align: left;
-  padding: 12px 16px;
+  padding: 0.75rem 0.5rem;
   border-bottom: 1px solid var(--border-light);
   color: var(--text-primary);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  word-break: break-word;
 }
+
 .mapping-table th {
   font-weight: 700;
   letter-spacing: 0.2px;
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
+
 .mapping-row {
   background: var(--bg-card);
   transition: background 0.18s ease, transform 0.12s ease;
 }
+
 .mapping-row:hover {
   background: rgba(66, 165, 245, 0.06);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
+
 .clickable-row {
   cursor: pointer;
 }
 
-/* ---------- 10.  PAGINATION  ---------- */
+/* ---------- 10.  PAGINATION - RESPONSIVE ---------- */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
-  gap: 6px;
+  margin-top: 1.5rem;
+  gap: 0.25rem;
   flex-wrap: wrap;
+  padding: 0.5rem;
 }
+
 .pagination button {
   background: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  padding: 0.5rem 0.8rem;
+  padding: 0.5rem 0.75rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.3s;
+  font-size: 0.85rem;
+  min-width: 44px;
+  min-height: 44px;
 }
-.pagination button:hover {
+
+.pagination button:hover:not(:disabled) {
   background: var(--accent-primary);
   color: white;
   border-color: var(--accent-primary);
 }
+
 .pagination button:disabled {
   background: var(--bg-tertiary);
   cursor: not-allowed;
   opacity: 0.6;
 }
+
 .pagination .active-page {
   background: var(--accent-primary);
   color: white;
   border-color: var(--accent-primary);
 }
 
-/* ---------- 11.  ABOUT / BENEFITS  ---------- */
-.system-info-content {
-  margin-top: 3rem;
+/* ---------- 11.  ABOUT / BENEFITS - ALWAYS VISIBLE ---------- */
+.system-info-content.always-visible {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
 }
+
 .system-info-content h3 {
   color: var(--accent-primary);
   margin-bottom: 1rem;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
+
 .system-info-content p {
   margin-bottom: 1.5rem;
-  line-height: 1.8;
+  line-height: 1.7;
   color: var(--text-secondary);
+  font-size: 0.95rem;
 }
+
+.system-benefits {
+  margin-top: 1.5rem;
+}
+
 .system-benefits h4 {
   color: var(--accent-secondary);
   margin-bottom: 1rem;
-}
-.system-benefits ul {
-  list-style-position: inside;
-  padding-left: 1rem;
-}
-.system-benefits li {
-  margin-bottom: 0.5rem;
-  color: var(--text-secondary);
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
-/* ---------- 12.  DARK FIXES (high-specificity overrides)  ---------- */
+.system-benefits ul {
+  list-style-position: outside;
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.system-benefits li {
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ---------- 12.  TABLET STYLES (768px and up) ---------- */
+@media (min-width: 768px) {
+  .system-page {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .containers {
+    padding: 0 1.5rem;
+  }
+
+  .system-header {
+    flex-direction: row;
+    text-align: left;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .system-icon-large img {
+    width: 120px;
+    height: 120px;
+    border-radius: 60px;
+  }
+
+  .system-info h2 {
+    font-size: 2.25rem;
+  }
+
+  .system-info p {
+    font-size: 1.1rem;
+  }
+
+  .search-forms {
+    width: 90%;
+    margin-bottom: 2rem;
+  }
+
+  .search-input-container {
+    flex-direction: row;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .search-inputs {
+    padding: 1rem 1.25rem;
+    font-size: 1.05rem;
+  }
+
+  .upload-group {
+    padding: 0;
+  }
+
+  .upload-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .search-buttons {
+    width: auto;
+    min-width: 140px;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .mapping-table th,
+  .mapping-table td {
+    padding: 1rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .system-info-content.always-visible {
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+
+  .system-info-content h3 {
+    font-size: 1.5rem;
+  }
+
+  .pagination {
+    gap: 0.5rem;
+  }
+
+  .pagination button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* ---------- 13.  DESKTOP STYLES (1024px and up) ---------- */
+@media (min-width: 1024px) {
+  .system-page {
+    padding: 2rem;
+  }
+
+  .search-forms {
+    width: 80%;
+  }
+
+  .search-input-container {
+    padding: 1.25rem;
+  }
+
+  .search-inputs {
+    padding: 1.125rem 1.5rem;
+    font-size: 1.1rem;
+  }
+
+  .search-buttons {
+    padding: 0 2rem;
+    font-size: 1.1rem;
+    min-width: 160px;
+  }
+
+  .upload-icon {
+    width: 45px;
+    height: 45px;
+  }
+
+  .mapping-table {
+    min-width: 800px;
+  }
+
+  .mapping-table th,
+  .mapping-table td {
+    padding: 1.25rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .system-results h3 {
+    font-size: 1.5rem;
+  }
+
+  .system-info-content.always-visible {
+    padding: 2.5rem;
+  }
+
+  .system-info-content h3 {
+    font-size: 1.75rem;
+  }
+
+  .system-benefits h4 {
+    font-size: 1.3rem;
+  }
+}
+
+/* ---------- 14.  LARGE DESKTOP STYLES (1440px and up) ---------- */
+@media (min-width: 1440px) {
+  .containers {
+    max-width: 1400px;
+  }
+
+  .search-forms {
+    width: 70%;
+  }
+}
+
+/* ---------- 15.  DARK THEME FIXES ---------- */
 .dark .system-info h2,
 .dark .system-info p,
 .dark .system-info-content p,
@@ -420,21 +683,26 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.03);
 }
+
 .dark .search-inputs {
   background: transparent;
   color: #e6eef6;
 }
+
 .dark .search-inputs:focus {
   background: rgba(255, 255, 255, 0.02);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.02);
 }
+
 .dark .search-inputs::placeholder {
   color: #9aa7ba;
 }
+
 .dark .search-buttons {
   background: linear-gradient(90deg, #1b6fb8, #0f4e86);
 }
-.dark .search-buttons:hover {
+
+.dark .search-buttons:hover:not(:disabled) {
   filter: brightness(1.05);
 }
 
@@ -443,47 +711,57 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
+
 .dark .mapping-table thead {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
 }
+
 .dark .mapping-table th,
 .dark .mapping-table td {
   color: #e6eef6;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   background: transparent;
 }
+
 .dark .mapping-row {
   background: transparent;
 }
+
 .dark .mapping-row:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 
-/* ---------- 13.  RESPONSIVE  ---------- */
-@media (max-width: 768px) {
-  .system-header {
-    flex-direction: column;
-    text-align: center;
+.dark .system-info-content.always-visible {
+  background: #0b0b0b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ---------- 16.  ACCESSIBILITY ---------- */
+.search-buttons:focus-visible,
+.pagination button:focus-visible,
+.sugg-page-btn:focus-visible,
+.upload-icon:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- 17.  PRINT STYLES ---------- */
+@media print {
+  .search-forms,
+  .upload-group,
+  .pagination {
+    display: none;
   }
-  .search-forms {
-    width: 94%;
-    flex-direction: column;
-    border-radius: var(--radius-lg);
+  
+  .system-page {
+    background: white;
+    color: black;
+    padding: 0;
   }
-  .search-inputs {
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  }
-  .search-buttons {
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  }
-  .mapping-table {
-    min-width: 0;
-  }
-  .sugg-pagination {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .sugg-pagination-numbers {
-    order: -1;
+  
+  .system-info-content.always-visible {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
   }
 }

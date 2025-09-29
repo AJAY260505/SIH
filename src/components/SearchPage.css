@@ -319,7 +319,10 @@
   min-width: fit-content;
   text-align: center;
 }
-
+.filter-btn {
+  flex: 0 0 100px !important;
+  max-width: 100px !important;
+}
 .filter-btn.active {
   font-style: italic;
   background: linear-gradient(135deg, #1e88e5, #42a5f5);
@@ -772,7 +775,9 @@
   .filter-buttons {
     flex-wrap: nowrap;
   }
-  
+  .filter-buttons button{
+    width:300px!important;
+  }
   .filter-btn {
     flex: 1;
   }
